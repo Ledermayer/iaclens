@@ -1,0 +1,94 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing SemVer tag to release or retry (e.g. v0.1.0)
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate and check out release tag
+        id: version
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          VALIDATE_ONLY=true scripts/release.sh "$TAG"
+          git rev-parse --verify "refs/tags/$TAG"
+          git checkout --detach "refs/tags/$TAG"
+          git merge-base --is-ancestor HEAD origin/main
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - run: go mod verify
+      - run: go test -race ./...
+      - run: go vet ./...
+      - name: Build all release archives
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: scripts/release.sh "$TAG"
+      - name: Verify archives
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          mkdir smoke
+          tar -xzf "dist/iaclens_${TAG#v}_linux_amd64.tar.gz" -C smoke
+          ./smoke/iaclens --version | grep -F "iaclens $TAG "
+          (cd dist && sha256sum --check checksums.txt)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-assets
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Download verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: gh run download "$RUN_ID" --name release-assets --dir dist
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          # Upload to a draft first: users never see a partially uploaded release.
+          # A failed draft can be retried; a published version is immutable here.
+          if gh release view "$TAG" --json isDraft > release.json 2>/dev/null; then
+            test "$(jq -r .isDraft release.json)" = true || {
+              echo 'Release is already published; create a new version.' >&2
+              exit 1
+            }
+          else
+            gh release create "$TAG" --verify-tag --draft --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" dist/* --clobber
+          if [[ "$TAG" == *-* ]]; then
+            gh release edit "$TAG" --draft=false --prerelease --latest=false
+          else
+            gh release edit "$TAG" --draft=false --prerelease=false
+          fi
