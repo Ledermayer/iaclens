@@ -14,13 +14,15 @@ time and validation result. Reports carry source/ruleset digests, check IDs,
 classification provenance and returned model answers. Temporary absolute paths
 are normalized; raw source spans/expressions in the report remain visible.
 
-Results are gitignored. CI uploads the folders as artifacts with 14-day retention
+Results are committed to the PR branch under each example’s results/ folder. CI uploads the folders as artifacts with 14-day retention
 and summarizes them on the workflow run visible from the PR. Curated expected.json
 files are tracked separately. They assert contracts (classification, ownership,
 profile routing, specific check statuses), not exact model probabilities.
 
-This avoids model-output churn in source history, bots committing to contributors'
-branches, feedback loops, and storing growing run histories in the CLI checkout.
+This deliberately keeps the latest example evidence beside its fixture for PR
+review. It introduces generated diffs in source history; it is a provisional
+choice, not a fleet results database. Publishing is followed by offline/CI
+verification without another publication, preventing feedback loops.
 A fresh run replaces its local mode folder's known files; prior CI attempts have
 separate artifact names. It does not rerun Jev to obtain a second output format.
 
@@ -36,8 +38,8 @@ separate artifact names. It does not rerun Jev to obtain a second output format.
 | SQLite or service database | Local history or interactive fleet queries | Schema migrations and operational coupling; poor fit for Git diffs |
 | SARIF and GitHub code scanning | File/line findings in review UI | Classification inventories do not fit well; private availability depends on GitHub plan |
 
-Recommendation for now: keep the CLI output-agnostic, examples local, PR evidence
-in Actions artifacts, and only reviewed expectations in Git. Do not create a
+Recommendation for now: keep the CLI output-agnostic, example reports on their feature branch, PR evidence
+also in Actions artifacts, and reviewed expectations separate from generated reports. Do not create a
 fleet data/ catalog inside iaclens. A later metadata factory can consume its JSON
 or YAML without changing the analysis engine.
 

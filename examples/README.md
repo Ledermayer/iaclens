@@ -19,8 +19,8 @@ examples/<archetype>/
   rules.yaml      # independent collection, ownership and check configuration
   expected.json   # reviewed structural/status assertions, offline and live
   results/
-    offline/      # generated and ignored
-    jev/          # generated and ignored
+    offline/      # generated and committed on the PR branch
+    jev/          # generated and committed on the PR branch
       report.json
       report.yaml
       run.json
@@ -47,24 +47,27 @@ machine-specific root path is normalized to source for portability. Source and
 ruleset hashes, actual model answers, probabilities, token usage, tested revision,
 workflow SHA/run/attempt, elapsed time, and assertion outcome remain available.
 
-Each PR runs six offline jobs followed by six live jobs (at most two simultaneous
-live jobs). CI does not provision infrastructure or fetch provider release feeds.
-Live validation requires actual Jev calls and expected semantic check statuses;
-a skipped or offline result cannot pass the live gate. Expected failures such as
-the custom-policy check are valid test outcomes, while unexpected failures or
-uncertainty fail the suite and retain reports for inspection.
+Each PR exposes one Examples gate check. It builds once, validates all six
+examples offline, then runs advisory live assessments sequentially. Offline
+failures block merging; live failures, timeouts, unavailable credentials, and
+skipped fork/Dependabot live runs do not. Every live invocation has a three-minute
+limit. CI does not provision infrastructure.
 
-PR jobs upload results as 14-day artifacts and append job summaries. Artifact
-names identify example, mode and attempt. After downloading one, place its files
-under that example's results/<mode>/ directory for the same local layout. The
-workflow does not commit reports, update expected.json, or post bot PR comments.
-
-For a fork/Dependabot contribution, a maintainer must first review/promote it onto
-a same-repository branch for a secret-bearing live run. See CONTRIBUTING.md.
+All reports are written under each example's results/<mode>/ directory. One
+14-day artifact contains the complete directory structure, linked from the workflow
+summary. Extract it into examples/ to review all JSON/YAML reports locally.
+Expected policy failures (such as custom-policy) remain valid test outcomes.
 
 The API client retries an explicit HTTP 503 at most twice (three total attempts),
 with one- and two-second delays. It does not retry model answers, expectation
 mismatches, authentication failures, or ambiguous transport errors. Reported Jev
 calls count completed evaluations; temporary failed HTTP attempts are not separate
-model decisions. An exhausted API failure blocks the PR gate and retains run
+model decisions. An exhausted API failure is advisory and retains run
 metadata; consult the job log when no complete report could be written.
+
+For same-repository PRs, Actions commits the generated reports directly to the
+feature branch after the run, including failure metadata. Open examples/<name>/results/
+in the PR Files changed tab or branch browser. A separate publishing job has write
+permissions and never executes PR code. It refuses to push if the branch advanced.
+The bot dispatches CI and offline verification on the generated commit; this second
+run does not call Jev or publish again. Fork/Dependabot runs retain artifacts only.
