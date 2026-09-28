@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 from ci_plan import NAMES
 
@@ -18,10 +19,12 @@ for name in selected:
 if os.environ.get('LLM_GATEWAY_API_KEY'):
     for name in selected:
         try:
-            result = subprocess.run(['./work/exampletest', '--example', name, '--mode', 'jev', '--bin', 'work/iaclens'], timeout=180)
-            if result.returncode:
+            process = subprocess.Popen(['./work/exampletest', '--example', name, '--mode', 'jev', '--bin', 'work/iaclens'], start_new_session=True)
+            if process.wait(timeout=180):
                 print(f'::warning::Live assessment failed for {name}; advisory only.', flush=True)
         except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            process.wait()
             print(f'::warning::Live assessment timed out for {name}; advisory only.', flush=True)
             # No stale success is retained: the runner cleared its files before execution.
             folder = Path('examples',name,'results','jev')

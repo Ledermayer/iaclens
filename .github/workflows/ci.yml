@@ -158,6 +158,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.plan.outputs.head || github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Validate the selected route
         env:
           PLAN: ${{ needs.plan.result }}
@@ -165,15 +169,8 @@ jobs:
           TEST: ${{ needs.test.result }}
           PACKAGE: ${{ needs.package.result }}
           EXAMPLES: ${{ needs.examples.result }}
-        run: |
-          test "$PLAN" = success
-          case "$MODE" in
-            full) test "$TEST" = success && test "$PACKAGE" = success && test "$EXAMPLES" = success ;;
-            examples) test "$EXAMPLES" = success ;;
-            results|docs) test "$TEST" = skipped && test "$PACKAGE" = skipped && test "$EXAMPLES" = skipped ;;
-            *) exit 1 ;;
-          esac
-          echo "Validated route: **$MODE**. Live assessments are advisory." >> "$GITHUB_STEP_SUMMARY"
+        run: python3 scripts/ci_gate.py
+
   publish:
     name: Save reports to PR branch
     needs: [plan, gate]

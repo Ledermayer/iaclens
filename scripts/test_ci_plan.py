@@ -21,4 +21,21 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(classify(['Makefile'])[0],'full')
         self.assertEqual(classify(['examples/custom-policy/source/main.tf'])[1],['custom-policy'])
 
+class GateTests(unittest.TestCase):
+    def test_failed_or_skipped_required_job_blocks(self):
+        from ci_gate import validate
+        for failed in ['failure', 'cancelled', 'skipped', '']:
+            for index in range(4):
+                jobs = ['success'] * 4
+                jobs[index] = failed
+                with self.assertRaises(ValueError): validate('full', *jobs)
+        with self.assertRaises(ValueError): validate('examples','success','skipped','skipped','failure')
+    def test_selected_routes(self):
+        from ci_gate import validate
+        validate('full','success','success','success','success')
+        validate('examples','success','skipped','skipped','success')
+        for mode in ['docs','results']:
+            validate(mode,'success','skipped','skipped','skipped')
+        with self.assertRaises(ValueError): validate('unknown','success','skipped','skipped','skipped')
+
 if __name__ == '__main__': unittest.main()
