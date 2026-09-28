@@ -176,7 +176,7 @@ jobs:
     name: Save reports to PR branch
     needs: [plan, gate]
     if: >-
-      needs.gate.result == 'success' && needs.plan.outputs.examples != '[]' &&
+      !cancelled() && needs.gate.result == 'success' && needs.plan.outputs.examples != '[]' &&
       github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' &&
       github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
