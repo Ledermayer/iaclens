@@ -27,7 +27,7 @@
             },
             "model": "typesafe/jev-1.13.0",
             "usage": {
-              "input_tokens": 514,
+              "input_tokens": 527,
               "output_tokens": 39
             }
           },
@@ -41,7 +41,7 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:1"
+                "main.tf:2"
               ],
               "id": "deployment-core-version",
               "message": "Declare the Terraform core version supported by this deployment.",
@@ -51,7 +51,7 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:4"
+                "main.tf:5"
               ],
               "id": "declared-provider-sources",
               "message": "Declare provider requirements explicitly when providers are used; customize for provider-free configurations.",
@@ -96,7 +96,7 @@
       "version": 1
     },
     "schema_version": 2,
-    "source_digest": "3595c95f90045dca07a271f2cf6fb213661e24b85900c5fc485d7563b8bfa791",
+    "source_digest": "bf1d6990b5e84e7f832b8506a312950c9af5ed5d42df861e93b8941e9de0eaaa",
     "units": [
       {
         "path": ".",
@@ -110,7 +110,7 @@
               {
                 "file": "main.tf",
                 "kind": "terraform.backend",
-                "line": 2,
+                "line": 3,
                 "name": "local"
               },
               {
@@ -119,12 +119,12 @@
                 },
                 "file": "main.tf",
                 "kind": "terraform.required_providers",
-                "line": 4
+                "line": 5
               }
             ],
             "file": "main.tf",
             "kind": "terraform",
-            "line": 1,
+            "line": 2,
             "literals": {
               "required_version": "\u003e= 1.9"
             }
@@ -135,7 +135,7 @@
             },
             "file": "main.tf",
             "kind": "provider",
-            "line": 11,
+            "line": 12,
             "literals": {
               "region": "eu-west-1"
             },
@@ -148,7 +148,7 @@
             },
             "file": "main.tf",
             "kind": "resource",
-            "line": 14,
+            "line": 15,
             "literals": {
               "bucket": "iaclens-example-dev"
             },

@@ -17,7 +17,7 @@
               "engine": "go",
               "evidence": [
                 "main.tf:11",
-                "main.tf:15"
+                "main.tf:16"
               ],
               "id": "input-descriptions",
               "message": "Reusable module inputs should have nonempty descriptions.",
@@ -27,7 +27,7 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:24"
+                "main.tf:25"
               ],
               "id": "output-descriptions",
               "message": "Reusable module outputs should have nonempty descriptions.",
@@ -69,7 +69,7 @@
               "engine": "go",
               "evidence": [
                 "main.tf:11",
-                "main.tf:15"
+                "main.tf:16"
               ],
               "id": "company-nullability",
               "message": "Company policy: each public input must explicitly declare nullable.",
@@ -97,7 +97,7 @@
       "version": 1
     },
     "schema_version": 2,
-    "source_digest": "5ff84bd806616a590564db392b419522fda97e35cf81d5c366f1caf3962dcdfb",
+    "source_digest": "b6788cfd32bce9f2fadd74436e6719092334f48793c261231b7069d66298910a",
     "units": [
       {
         "path": ".",
@@ -145,7 +145,7 @@
             },
             "file": "main.tf",
             "kind": "variable",
-            "line": 15,
+            "line": 16,
             "literals": {
               "description": "Tags supplied by the calling configuration."
             },
@@ -158,7 +158,7 @@
             },
             "file": "main.tf",
             "kind": "resource",
-            "line": 20,
+            "line": 21,
             "name": "this",
             "type": "aws_s3_bucket"
           },
@@ -169,7 +169,7 @@
             },
             "file": "main.tf",
             "kind": "output",
-            "line": 24,
+            "line": 25,
             "literals": {
               "description": "Bucket ID for use by the calling configuration."
             },
