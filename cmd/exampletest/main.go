@@ -219,6 +219,9 @@ func run() error {
 		return err
 	}
 	summary := fmt.Sprintf("### %s — %s: %s\n\nRepository kind: `%s`. Components: `%v`. Owned examples: %d. Actual Jev calls: %d.\n\nReports: `examples/%s/results/%s/` in the workflow artifact.\n", *name, *mode, status, report.Iaclens.Analysis.CodebaseKind, report.Iaclens.Analysis.ComponentCounts, report.Iaclens.Analysis.ExampleCount, len(report.Iaclens.Analysis.Calls), *name, *mode)
+	if raw == nil {
+		summary = fmt.Sprintf("### %s — %s: %s\n\nCLI did not produce a report; classification and completed Jev calls are unavailable. See the workflow log for the API error.\n", *name, *mode, status)
+	}
 	if runErr != nil {
 		summary += "\nValidation: " + failure + "\n"
 	}

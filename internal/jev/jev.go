@@ -48,21 +48,37 @@ func Evaluate(ctx context.Context, endpoint, key string, req Request) (Response,
 	if len(body) > 100000 {
 		return result, fmt.Errorf("request exceeds POC size guard (100000 bytes); reduce module scope")
 	}
-	request, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewReader(body))
-	if err != nil {
-		return result, err
-	}
-	request.Header.Set("Authorization", "Bearer "+key)
-	request.Header.Set("Content-Type", "application/json")
 	client := &http.Client{Timeout: 90 * time.Second}
-	response, err := client.Do(request)
-	if err != nil {
-		return result, err
+	var response *http.Response
+	// Retry only explicit temporary service failures, never model answers or
+	// ambiguous transport failures. Keep metered retries bounded to three attempts.
+	for attempt := 0; attempt < 3; attempt++ {
+		request, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewReader(body))
+		if err != nil {
+			return result, err
+		}
+		request.Header.Set("Authorization", "Bearer "+key)
+		request.Header.Set("Content-Type", "application/json")
+		response, err = client.Do(request)
+		if err != nil {
+			return result, err
+		}
+		if response.StatusCode == http.StatusOK {
+			break
+		}
+		response.Body.Close()
+		if response.StatusCode != http.StatusServiceUnavailable || attempt == 2 {
+			return result, fmt.Errorf("Jev API returned HTTP %d after %d attempt(s)", response.StatusCode, attempt+1)
+		}
+		timer := time.NewTimer(time.Duration(attempt+1) * time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return result, ctx.Err()
+		case <-timer.C:
+		}
 	}
 	defer response.Body.Close()
-	if response.StatusCode != 200 {
-		return result, fmt.Errorf("TypeSafe returned HTTP %d", response.StatusCode)
-	}
 	if err = json.NewDecoder(io.LimitReader(response.Body, 4<<20)).Decode(&result); err != nil {
 		return result, err
 	}

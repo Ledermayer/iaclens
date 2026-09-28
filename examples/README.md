@@ -61,3 +61,10 @@ workflow does not commit reports, update expected.json, or post bot PR comments.
 
 For a fork/Dependabot contribution, a maintainer must first review/promote it onto
 a same-repository branch for a secret-bearing live run. See CONTRIBUTING.md.
+
+The API client retries an explicit HTTP 503 at most twice (three total attempts),
+with one- and two-second delays. It does not retry model answers, expectation
+mismatches, authentication failures, or ambiguous transport errors. Reported Jev
+calls count completed evaluations; temporary failed HTTP attempts are not separate
+model decisions. An exhausted API failure blocks the PR gate and retains run
+metadata; consult the job log when no complete report could be written.
