@@ -2,7 +2,7 @@
 
 All changes to main must go through a pull request, including maintainer changes.
 Create a branch, run `go test -race ./...` and `go vet ./...`, and open a PR. Merge
-only after required CI and Examples gate checks pass and conversations are resolved.
+only after required Validation gate passes and conversations are resolved.
 Use squash merges with a descriptive Conventional Commit title.
 
 The repository currently has one maintainer, so branch rules require a PR and
@@ -14,7 +14,7 @@ Live examples use a metered LLM credential from the live-examples environment.
 Same-repository branches are a trust boundary: only trusted maintainers should
 have write access. Never execute fork PR code with pull_request_target or expose
 secrets to unreviewed code. Fork and Dependabot PRs run offline checks; their merge
-gate depends only on offline validation. Live assessments are advisory and may
+gate enforces the selected CI/offline validation route. Live assessments are advisory and may
 be skipped or fail without blocking a merge. Maintainers can review/promote a
 fork onto a same-repository branch when a live assessment is useful.
 
@@ -29,3 +29,5 @@ may drift even with a pinned model; rerun only after examining a failure.
 Default rules are versioned in rules/default.yaml and embedded in release binaries.
 Generated examples/*/results files are committed separately by Actions; expected.json files are
 reviewed inputs, not snapshots of every probability from the last run.
+
+See [validation routing](docs/validation-routing.md) for change selection and results-commit verification.

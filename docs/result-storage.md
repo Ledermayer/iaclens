@@ -21,7 +21,7 @@ profile routing, specific check statuses), not exact model probabilities.
 
 This deliberately keeps the latest example evidence beside its fixture for PR
 review. It introduces generated diffs in source history; it is a provisional
-choice, not a fleet results database. Publishing is followed by offline/CI
+choice, not a fleet results database. Publishing is followed by lightweight path/parent-evidence
 verification without another publication, preventing feedback loops.
 A fresh run replaces its local mode folder's known files; prior CI attempts have
 separate artifact names. It does not rerun Jev to obtain a second output format.

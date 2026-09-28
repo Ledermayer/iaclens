@@ -47,16 +47,16 @@ machine-specific root path is normalized to source for portability. Source and
 ruleset hashes, actual model answers, probabilities, token usage, tested revision,
 workflow SHA/run/attempt, elapsed time, and assertion outcome remain available.
 
-Each PR exposes one Examples gate check. It builds once, validates all six
-examples offline, then runs advisory live assessments sequentially. Offline
-failures block merging; live failures, timeouts, unavailable credentials, and
-skipped fork/Dependabot live runs do not. Every live invocation has a three-minute
-limit. CI does not provision infrastructure.
+The CI workflow detects changed inputs first. Go/shared input changes run full
+CI before all examples. Example-only edits build the binary and run only affected
+examples. Docs and verified generated-results commits run no examples.
+[Validation routing](../docs/validation-routing.md) describes the complete decision.
 
-All reports are written under each example's results/<mode>/ directory. One
-14-day artifact contains the complete directory structure, linked from the workflow
-summary. Extract it into examples/ to review all JSON/YAML reports locally.
-Expected policy failures (such as custom-policy) remain valid test outcomes.
+Offline failures block merging; live failures, timeouts, missing credentials,
+and skipped fork/Dependabot live runs are advisory. A successful gate commits
+selected results to the feature branch and links a combined artifact. Unchanged
+examples retain their existing reports. Expected policy failures (custom-policy)
+remain valid test outcomes.
 
 The API client retries an explicit HTTP 503 at most twice (three total attempts),
 with one- and two-second delays. It does not retry model answers, expectation
@@ -65,9 +65,10 @@ calls count completed evaluations; temporary failed HTTP attempts are not separa
 model decisions. An exhausted API failure is advisory and retains run
 metadata; consult the job log when no complete report could be written.
 
-For same-repository PRs, Actions commits the generated reports directly to the
-feature branch after the run, including failure metadata. Open examples/<name>/results/
-in the PR Files changed tab or branch browser. A separate publishing job has write
-permissions and never executes PR code. It refuses to push if the branch advanced.
-The bot dispatches CI and offline verification on the generated commit; this second
-run does not call Jev or publish again. Fork/Dependabot runs retain artifacts only.
+For same-repository PRs, Actions commits selected reports directly to the feature
+branch after successful required validation. Open examples/<name>/results/ in the
+PR Files changed tab or branch browser. A separate publishing job has write
+permissions and never executes PR code. It refuses to overwrite a newer head.
+The results commit uses [skip ci] and an explicit lightweight dispatch verifies
+only permitted output paths and the parent's successful gate; no CI/examples
+are repeated. Fork/Dependabot runs retain artifacts only.

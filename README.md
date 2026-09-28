@@ -157,11 +157,12 @@ macOS/Windows signing and notarization are not configured.
 ## Example suite and PR evidence
 
 Six self-contained repository archetypes and per-example rulesets live under
-[examples/](examples/README.md). The PR Examples workflow runs each offline and
-against live Jev, verifies reviewed expectations, and uploads JSON/YAML reports
+[examples/](examples/README.md). The CI workflow selects changed examples, runs offline checks and
+advisory live Jev assessments, verifies reviewed expectations, and uploads JSON/YAML reports
 and run metadata. Generated reports are committed to each example's results/
 folder on the feature branch. Offline validation blocks merging; live assessments
 are advisory. See the [result-storage decision](docs/result-storage.md) for
 alternatives to making the CLI repository a metadata database.
 
-All changes to main require a PR and the required checks; see CONTRIBUTING.md.
+All changes to main require a PR and Validation gate; see
+[validation routing](docs/validation-routing.md) and CONTRIBUTING.md.

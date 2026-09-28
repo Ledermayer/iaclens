@@ -1,0 +1,42 @@
+# Change-based validation
+
+The CI workflow exposes one required **Validation gate**. It selects a route before
+setting up Go or running any examples.
+
+| Changed inputs | Required work | Examples |
+|---|---|---|
+| Go, go.mod/go.sum, embedded rules, scripts, workflow/build inputs | Tests on Linux/macOS/Windows and release packaging first | All, using the tested Linux binaries |
+| Particular example source, rules.yaml, expected.json | Build CLI/runner only | Only affected examples |
+| Documentation | Change classification only | None |
+| Generated reports only | Verify permitted paths and successful direct parent | None |
+| Unknown shared inputs | Full CI | All |
+
+Offline assertions are required; live failures and timeouts are advisory. Live
+runs have a three-minute limit per example. All results are retained as artifacts;
+a successful gate permits committing selected reports to the feature branch.
+Unchanged examples' report files are left untouched. Offline failures retain
+artifacts without publishing a new commit on top of an unvalidated parent.
+
+## Baseline and evidence
+
+The planner searches the branch's first-parent history for a successful Validation
+gate from this CI workflow. The run's validation-plan artifact must match both that
+commit and the PR's current base SHA. Changes since that proven ancestor determine
+the route. Without reusable evidence, the planner compares against the merge base
+and validates the complete PR diff. Moving the PR base invalidates cached evidence.
+The search is bounded to 50 ancestors / 100 runs; evidence is retained for 90 days.
+
+A results-only commit must have a directly validated parent and may only change
+report.json, report.yaml, run.json, or summary.md inside that parent's selected
+examples/results/offline or examples/results/jev directories. Commit messages,
+bot identity, and manually supplied flags are not evidence of successful tests.
+
+The publisher uses `[skip ci]` to suppress push/PR triggers and explicitly dispatches
+the same CI workflow on the new head. That dispatch performs only planning and the
+required gate. It does not compile, test, call Jev, or publish again. This gives the
+latest commit its required check without repeating expensive CI. The main branch
+requires only Validation gate; that gate enforces all work selected for its route.
+
+Fork/Dependabot PRs can pass offline validation without live credentials or report
+publishing. Publishing uses a separate job with write permissions, executes only
+inline workflow commands, and never force-pushes over newer changes.
