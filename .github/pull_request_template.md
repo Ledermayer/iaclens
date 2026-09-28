@@ -10,5 +10,5 @@ Explain the problem and resulting behavior.
 
 ## Results
 
-Link the Examples workflow run and note changed classifications, expected policy
+Link the CI workflow run and selected validation route; note changed classifications, expected policy
 failures, or model uncertainty. Generated reports are committed under examples/<name>/results/ on this branch.
