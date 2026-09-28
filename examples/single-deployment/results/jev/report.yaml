@@ -1,0 +1,118 @@
+iaclens:
+    analysis:
+        classification_complete: true
+        codebase_kind: deployment
+        component_counts:
+            deployment: 1
+            module: 0
+            unknown: 0
+        example_count: 0
+        jev_calls:
+            - path: .
+              result:
+                answers:
+                    deployment-purpose:
+                        choice: pass
+                        confidence: 1
+                        probabilities:
+                            fail: 0
+                            pass: 1
+                            unknown: 0
+                        type: choice
+                model: typesafe/jev-1.13.0
+                usage:
+                    input_tokens: 514
+                    output_tokens: 39
+              stage: checks
+        kind_scope: repository components (examples excluded)
+        units:
+            - checks:
+                - engine: go
+                  evidence:
+                    - main.tf:1
+                  id: deployment-core-version
+                  message: Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - main.tf:4
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - answer:
+                    choice: pass
+                    confidence: 1
+                    probabilities:
+                        fail: 0
+                        pass: 1
+                        unknown: 0
+                    type: choice
+                  engine: jev
+                  id: deployment-purpose
+                  message: Example deployment must configure a concrete environment.
+                  severity: info
+                  status: pass
+              classification:
+                kind: deployment
+                method: go
+                reason: declares-backend
+              path: .
+              role: component
+    repository:
+        name: single-deployment
+        root: source
+    ruleset:
+        digest: 5854675decf6953d90cf40f1ee428369951c9cc24ab93af444d4b20e3fd7e5aa
+        name: single-deployment
+        version: 1
+    schema_version: 2
+    source_digest: 3595c95f90045dca07a271f2cf6fb213661e24b85900c5fc485d7563b8bfa791
+    units:
+        - path: .
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - file: main.tf
+                  kind: terraform.backend
+                  line: 2
+                  name: local
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: main.tf
+                  kind: terraform.required_providers
+                  line: 4
+              file: main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                region: '"eu-west-1"'
+              file: main.tf
+              kind: provider
+              line: 11
+              literals:
+                region: eu-west-1
+              name: aws
+            - attributes:
+                bucket: '"iaclens-example-dev"'
+                tags: '{ environment = "dev" }'
+              file: main.tf
+              kind: resource
+              line: 14
+              literals:
+                bucket: iaclens-example-dev
+              name: environment
+              type: aws_s3_bucket

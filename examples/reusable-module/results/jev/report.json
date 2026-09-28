@@ -1,0 +1,372 @@
+{
+  "iaclens": {
+    "analysis": {
+      "classification_complete": true,
+      "codebase_kind": "module",
+      "component_counts": {
+        "deployment": 0,
+        "module": 1,
+        "unknown": 0
+      },
+      "example_count": 1,
+      "jev_calls": [
+        {
+          "path": ".",
+          "result": {
+            "answers": {
+              "classification": {
+                "choice": "module",
+                "confidence": 0.99,
+                "probabilities": {
+                  "deployment": 0,
+                  "module": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              }
+            },
+            "model": "typesafe/jev-1.13.0",
+            "usage": {
+              "input_tokens": 656,
+              "output_tokens": 38
+            }
+          },
+          "stage": "classification"
+        },
+        {
+          "path": ".",
+          "result": {
+            "answers": {
+              "module-purpose": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              }
+            },
+            "model": "typesafe/jev-1.13.0",
+            "usage": {
+              "input_tokens": 566,
+              "output_tokens": 39
+            }
+          },
+          "stage": "checks"
+        },
+        {
+          "path": "examples/default",
+          "result": {
+            "answers": {
+              "deployment-purpose": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              }
+            },
+            "model": "typesafe/jev-1.13.0",
+            "usage": {
+              "input_tokens": 518,
+              "output_tokens": 39
+            }
+          },
+          "stage": "checks"
+        }
+      ],
+      "kind_scope": "repository components (examples excluded)",
+      "units": [
+        {
+          "checks": [
+            {
+              "engine": "go",
+              "evidence": [
+                "main.tf:10",
+                "main.tf:14"
+              ],
+              "id": "input-descriptions",
+              "message": "Reusable module inputs should have nonempty descriptions.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "evidence": [
+                "main.tf:23"
+              ],
+              "id": "output-descriptions",
+              "message": "Reusable module outputs should have nonempty descriptions.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "id": "module-state-is-caller-owned",
+              "message": "State backend belongs in the deployment entry point.",
+              "severity": "error",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "id": "module-cloud-is-caller-owned",
+              "message": "Cloud workspace configuration belongs in the deployment entry point.",
+              "severity": "error",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "evidence": [
+                "main.tf:3"
+              ],
+              "id": "declared-provider-sources",
+              "message": "Declare provider requirements explicitly when providers are used; customize for provider-free configurations.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "answer": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              },
+              "engine": "jev",
+              "id": "module-purpose",
+              "message": "A reusable module should expose a coherent purpose.",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "classification": {
+            "answer": {
+              "choice": "module",
+              "confidence": 0.99,
+              "probabilities": {
+                "deployment": 0,
+                "module": 1,
+                "unknown": 0
+              },
+              "type": "choice"
+            },
+            "kind": "module",
+            "method": "jev",
+            "reason": "accepted by configured thresholds"
+          },
+          "path": ".",
+          "role": "component"
+        },
+        {
+          "checks": [
+            {
+              "engine": "go",
+              "evidence": [
+                "examples/default/main.tf:1"
+              ],
+              "id": "deployment-core-version",
+              "message": "Declare the Terraform core version supported by this deployment.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "evidence": [
+                "examples/default/main.tf:4"
+              ],
+              "id": "declared-provider-sources",
+              "message": "Declare provider requirements explicitly when providers are used; customize for provider-free configurations.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "answer": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              },
+              "engine": "jev",
+              "id": "deployment-purpose",
+              "message": "Example deployment must configure a concrete environment.",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "classification": {
+            "kind": "deployment",
+            "method": "go",
+            "reason": "declares-backend"
+          },
+          "owner": ".",
+          "owner_scope": "component",
+          "path": "examples/default",
+          "role": "example"
+        }
+      ]
+    },
+    "repository": {
+      "name": "reusable-module",
+      "root": "source"
+    },
+    "ruleset": {
+      "digest": "e12ebac117e407dcd2f4eff6c0391e0c2721303c367871186b8c6d88e3ff23d5",
+      "name": "reusable-module",
+      "version": 1
+    },
+    "schema_version": 2,
+    "source_digest": "3754ca3f895b66f6f50cbc333308f39e6e53fced0474ec4d743a21c183cbc2ae",
+    "units": [
+      {
+        "path": ".",
+        "symbols": [
+          {
+            "attributes": {
+              "required_providers.aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }",
+              "required_version": "\"\u003e= 1.9\""
+            },
+            "children": [
+              {
+                "attributes": {
+                  "aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }"
+                },
+                "file": "main.tf",
+                "kind": "terraform.required_providers",
+                "line": 3
+              }
+            ],
+            "file": "main.tf",
+            "kind": "terraform",
+            "line": 1,
+            "literals": {
+              "required_version": "\u003e= 1.9"
+            }
+          },
+          {
+            "attributes": {
+              "description": "\"Unique name supplied by the caller for the storage bucket.\"",
+              "type": "string"
+            },
+            "file": "main.tf",
+            "kind": "variable",
+            "line": 10,
+            "literals": {
+              "description": "Unique name supplied by the caller for the storage bucket."
+            },
+            "name": "name"
+          },
+          {
+            "attributes": {
+              "default": "{}",
+              "description": "\"Tags supplied by the calling configuration.\"",
+              "type": "map(string)"
+            },
+            "file": "main.tf",
+            "kind": "variable",
+            "line": 14,
+            "literals": {
+              "description": "Tags supplied by the calling configuration."
+            },
+            "name": "tags"
+          },
+          {
+            "attributes": {
+              "bucket": "var.name",
+              "tags": "var.tags"
+            },
+            "file": "main.tf",
+            "kind": "resource",
+            "line": 19,
+            "name": "this",
+            "type": "aws_s3_bucket"
+          },
+          {
+            "attributes": {
+              "description": "\"Bucket ID for use by the calling configuration.\"",
+              "value": "aws_s3_bucket.this.id"
+            },
+            "file": "main.tf",
+            "kind": "output",
+            "line": 23,
+            "literals": {
+              "description": "Bucket ID for use by the calling configuration."
+            },
+            "name": "bucket_id"
+          }
+        ]
+      },
+      {
+        "path": "examples/default",
+        "symbols": [
+          {
+            "attributes": {
+              "required_providers.aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }",
+              "required_version": "\"\u003e= 1.9\""
+            },
+            "children": [
+              {
+                "file": "examples/default/main.tf",
+                "kind": "terraform.backend",
+                "line": 2,
+                "name": "local"
+              },
+              {
+                "attributes": {
+                  "aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }"
+                },
+                "file": "examples/default/main.tf",
+                "kind": "terraform.required_providers",
+                "line": 4
+              }
+            ],
+            "file": "examples/default/main.tf",
+            "kind": "terraform",
+            "line": 1,
+            "literals": {
+              "required_version": "\u003e= 1.9"
+            }
+          },
+          {
+            "attributes": {
+              "region": "\"eu-west-1\""
+            },
+            "file": "examples/default/main.tf",
+            "kind": "provider",
+            "line": 11,
+            "literals": {
+              "region": "eu-west-1"
+            },
+            "name": "aws"
+          },
+          {
+            "attributes": {
+              "name": "\"iaclens-example-dev\"",
+              "source": "\"../..\"",
+              "tags": "{ environment = \"dev\" }"
+            },
+            "file": "examples/default/main.tf",
+            "kind": "module",
+            "line": 14,
+            "literals": {
+              "name": "iaclens-example-dev",
+              "source": "../.."
+            },
+            "name": "storage"
+          }
+        ]
+      }
+    ]
+  }
+}

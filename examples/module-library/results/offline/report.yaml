@@ -1,0 +1,303 @@
+iaclens:
+    analysis:
+        classification_complete: false
+        codebase_kind: unknown
+        component_counts:
+            deployment: 0
+            module: 0
+            unknown: 2
+        example_count: 1
+        kind_scope: repository components (examples excluded)
+        units:
+            - checks:
+                - engine: go
+                  evidence:
+                    - examples/storage/main.tf:1
+                  id: deployment-core-version
+                  message: Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - examples/storage/main.tf:4
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - engine: jev
+                  id: deployment-purpose
+                  message: Example deployment must configure a concrete environment.
+                  severity: info
+                  status: unchecked
+              classification:
+                kind: deployment
+                method: go
+                reason: declares-backend
+              owner: modules/storage
+              owner_scope: component
+              path: examples/storage
+              role: example
+            - checks:
+                - engine: go
+                  id: input-descriptions
+                  message: code kind unresolved; Reusable module inputs should have nonempty descriptions.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  id: output-descriptions
+                  message: code kind unresolved; Reusable module outputs should have nonempty descriptions.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  id: module-state-is-caller-owned
+                  message: code kind unresolved; State backend belongs in the deployment entry point.
+                  severity: error
+                  status: unchecked
+                - engine: go
+                  id: module-cloud-is-caller-owned
+                  message: code kind unresolved; Cloud workspace configuration belongs in the deployment entry point.
+                  severity: error
+                  status: unchecked
+                - engine: go
+                  id: deployment-core-version
+                  message: code kind unresolved; Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  evidence:
+                    - modules/network/main.tf:3
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - engine: jev
+                  id: module-purpose
+                  message: code kind unresolved; A reusable module should expose a coherent purpose.
+                  severity: info
+                  status: unchecked
+                - engine: jev
+                  id: deployment-purpose
+                  message: code kind unresolved; Example deployment must configure a concrete environment.
+                  severity: info
+                  status: unchecked
+              classification:
+                kind: unknown
+                method: unavailable
+                reason: Jev not run; set a path override or --kind if known
+              path: modules/network
+              role: component
+            - checks:
+                - engine: go
+                  id: input-descriptions
+                  message: code kind unresolved; Reusable module inputs should have nonempty descriptions.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  id: output-descriptions
+                  message: code kind unresolved; Reusable module outputs should have nonempty descriptions.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  id: module-state-is-caller-owned
+                  message: code kind unresolved; State backend belongs in the deployment entry point.
+                  severity: error
+                  status: unchecked
+                - engine: go
+                  id: module-cloud-is-caller-owned
+                  message: code kind unresolved; Cloud workspace configuration belongs in the deployment entry point.
+                  severity: error
+                  status: unchecked
+                - engine: go
+                  id: deployment-core-version
+                  message: code kind unresolved; Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: unchecked
+                - engine: go
+                  evidence:
+                    - modules/storage/main.tf:3
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - engine: jev
+                  id: module-purpose
+                  message: code kind unresolved; A reusable module should expose a coherent purpose.
+                  severity: info
+                  status: unchecked
+                - engine: jev
+                  id: deployment-purpose
+                  message: code kind unresolved; Example deployment must configure a concrete environment.
+                  severity: info
+                  status: unchecked
+              classification:
+                kind: unknown
+                method: unavailable
+                reason: Jev not run; set a path override or --kind if known
+              path: modules/storage
+              role: component
+    repository:
+        name: module-library
+        root: source
+    ruleset:
+        digest: 25480e2115ed4d04dadcd3f278283dc7d473a1368457bde010dc4bbc603e3141
+        name: module-library
+        version: 1
+    schema_version: 2
+    source_digest: 40985650a9d39845ac39bd5203d4d32304856a69e4c659f8f8b78697d2f942db
+    units:
+        - path: examples/storage
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - file: examples/storage/main.tf
+                  kind: terraform.backend
+                  line: 2
+                  name: local
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: examples/storage/main.tf
+                  kind: terraform.required_providers
+                  line: 4
+              file: examples/storage/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                region: '"eu-west-1"'
+              file: examples/storage/main.tf
+              kind: provider
+              line: 11
+              literals:
+                region: eu-west-1
+              name: aws
+            - attributes:
+                name: '"iaclens-example-dev"'
+                source: '"../../modules/storage"'
+                tags: '{ environment = "dev" }'
+              file: examples/storage/main.tf
+              kind: module
+              line: 14
+              literals:
+                name: iaclens-example-dev
+                source: ../../modules/storage
+              name: storage
+        - path: modules/network
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: modules/network/main.tf
+                  kind: terraform.required_providers
+                  line: 3
+              file: modules/network/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                description: '"IPv4 CIDR supplied by the caller for this network."'
+                type: string
+              file: modules/network/main.tf
+              kind: variable
+              line: 10
+              literals:
+                description: IPv4 CIDR supplied by the caller for this network.
+              name: cidr
+            - attributes:
+                cidr_block: var.cidr
+              file: modules/network/main.tf
+              kind: resource
+              line: 14
+              name: this
+              type: aws_vpc
+            - attributes:
+                description: '"Network ID for the calling configuration."'
+                value: aws_vpc.this.id
+              file: modules/network/main.tf
+              kind: output
+              line: 17
+              literals:
+                description: Network ID for the calling configuration.
+              name: vpc_id
+        - path: modules/storage
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: modules/storage/main.tf
+                  kind: terraform.required_providers
+                  line: 3
+              file: modules/storage/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                description: '"Unique name supplied by the caller for the storage bucket."'
+                type: string
+              file: modules/storage/main.tf
+              kind: variable
+              line: 10
+              literals:
+                description: Unique name supplied by the caller for the storage bucket.
+              name: name
+            - attributes:
+                default: '{}'
+                description: '"Tags supplied by the calling configuration."'
+                type: map(string)
+              file: modules/storage/main.tf
+              kind: variable
+              line: 14
+              literals:
+                description: Tags supplied by the calling configuration.
+              name: tags
+            - attributes:
+                bucket: var.name
+                tags: var.tags
+              file: modules/storage/main.tf
+              kind: resource
+              line: 19
+              name: this
+              type: aws_s3_bucket
+            - attributes:
+                description: '"Bucket ID for use by the calling configuration."'
+                value: aws_s3_bucket.this.id
+              file: modules/storage/main.tf
+              kind: output
+              line: 23
+              literals:
+                description: Bucket ID for use by the calling configuration.
+              name: bucket_id

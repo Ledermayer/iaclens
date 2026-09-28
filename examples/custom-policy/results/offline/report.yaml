@@ -1,0 +1,133 @@
+iaclens:
+    analysis:
+        classification_complete: true
+        codebase_kind: module
+        component_counts:
+            deployment: 0
+            module: 1
+            unknown: 0
+        example_count: 0
+        kind_scope: repository components (examples excluded)
+        units:
+            - checks:
+                - engine: go
+                  evidence:
+                    - main.tf:10
+                    - main.tf:14
+                  id: input-descriptions
+                  message: Reusable module inputs should have nonempty descriptions.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - main.tf:23
+                  id: output-descriptions
+                  message: Reusable module outputs should have nonempty descriptions.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  id: module-state-is-caller-owned
+                  message: State backend belongs in the deployment entry point.
+                  severity: error
+                  status: pass
+                - engine: go
+                  id: module-cloud-is-caller-owned
+                  message: Cloud workspace configuration belongs in the deployment entry point.
+                  severity: error
+                  status: pass
+                - engine: go
+                  evidence:
+                    - main.tf:3
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - engine: jev
+                  id: module-purpose
+                  message: A reusable module should expose a coherent purpose.
+                  severity: info
+                  status: unchecked
+                - engine: go
+                  evidence:
+                    - main.tf:10
+                    - main.tf:14
+                  id: company-nullability
+                  message: 'Company policy: each public input must explicitly declare nullable.'
+                  severity: error
+                  status: fail
+              classification:
+                kind: module
+                method: override
+                reason: ruleset path override
+              path: .
+              role: component
+    repository:
+        name: custom-policy
+        root: source
+    ruleset:
+        digest: 41ecc7a78449409988ddf7cf54d62f82acff4c47cfa92fe123ce94b669c51b19
+        name: custom-policy
+        version: 1
+    schema_version: 2
+    source_digest: cd6ee5a3f75e290f23c082dc572c63620b9ee5f4f011da76a1b80b91675be7d0
+    units:
+        - path: .
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: main.tf
+                  kind: terraform.required_providers
+                  line: 3
+              file: main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                description: '"Unique name supplied by the caller for the storage bucket."'
+                type: string
+              file: main.tf
+              kind: variable
+              line: 10
+              literals:
+                description: Unique name supplied by the caller for the storage bucket.
+              name: name
+            - attributes:
+                default: '{}'
+                description: '"Tags supplied by the calling configuration."'
+                type: map(string)
+              file: main.tf
+              kind: variable
+              line: 14
+              literals:
+                description: Tags supplied by the calling configuration.
+              name: tags
+            - attributes:
+                bucket: var.name
+                tags: var.tags
+              file: main.tf
+              kind: resource
+              line: 19
+              name: this
+              type: aws_s3_bucket
+            - attributes:
+                description: '"Bucket ID for use by the calling configuration."'
+                value: aws_s3_bucket.this.id
+              file: main.tf
+              kind: output
+              line: 23
+              literals:
+                description: Bucket ID for use by the calling configuration.
+              name: bucket_id
