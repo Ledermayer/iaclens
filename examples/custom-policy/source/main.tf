@@ -12,6 +12,7 @@ variable "name" {
   type        = string
   description = "Unique name supplied by the caller for the storage bucket."
 }
+# The custom nullability rule applies to this input too.
 variable "tags" {
   type        = map(string)
   default     = {}

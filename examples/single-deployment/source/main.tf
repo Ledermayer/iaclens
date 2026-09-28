@@ -1,3 +1,4 @@
+# This entry point owns its state backend and concrete provider configuration.
 terraform {
   backend "local" {}
   required_version = ">= 1.9"
