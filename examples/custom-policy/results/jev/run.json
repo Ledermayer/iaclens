@@ -1,13 +1,13 @@
 {
-  "duration_ms": 278,
+  "duration_ms": 261,
   "error": "",
   "example": "custom-policy",
   "mode": "jev",
   "report_root_normalization": "Temporary fixture worktree mapped to source",
   "run_attempt": "1",
-  "run_id": "36447514838",
-  "source_revision": "2687213e2742933c3b99b9d1bd84d0b2a7a167b6",
-  "started_at": "2026-09-28T16:02:23Z",
+  "run_id": "36467310393",
+  "source_revision": "d8c6140d8e710bbe12de7792705359477d378dba",
+  "started_at": "2026-09-28T18:47:45Z",
   "status": "passed",
-  "workflow_sha": "4732e1378e5f00d9623e33e003ca3c7c5b20e64d"
+  "workflow_sha": "b7193c848613a9ae777aa646e73c1a14f7e4da3e"
 }

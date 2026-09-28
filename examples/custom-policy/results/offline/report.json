@@ -16,8 +16,8 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:10",
-                "main.tf:14"
+                "main.tf:11",
+                "main.tf:15"
               ],
               "id": "input-descriptions",
               "message": "Reusable module inputs should have nonempty descriptions.",
@@ -27,7 +27,7 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:23"
+                "main.tf:24"
               ],
               "id": "output-descriptions",
               "message": "Reusable module outputs should have nonempty descriptions.",
@@ -68,8 +68,8 @@
             {
               "engine": "go",
               "evidence": [
-                "main.tf:10",
-                "main.tf:14"
+                "main.tf:11",
+                "main.tf:15"
               ],
               "id": "company-nullability",
               "message": "Company policy: each public input must explicitly declare nullable.",
@@ -97,7 +97,7 @@
       "version": 1
     },
     "schema_version": 2,
-    "source_digest": "cd6ee5a3f75e290f23c082dc572c63620b9ee5f4f011da76a1b80b91675be7d0",
+    "source_digest": "5ff84bd806616a590564db392b419522fda97e35cf81d5c366f1caf3962dcdfb",
     "units": [
       {
         "path": ".",
@@ -131,7 +131,7 @@
             },
             "file": "main.tf",
             "kind": "variable",
-            "line": 10,
+            "line": 11,
             "literals": {
               "description": "Unique name supplied by the caller for the storage bucket."
             },
@@ -145,7 +145,7 @@
             },
             "file": "main.tf",
             "kind": "variable",
-            "line": 14,
+            "line": 15,
             "literals": {
               "description": "Tags supplied by the calling configuration."
             },
@@ -158,7 +158,7 @@
             },
             "file": "main.tf",
             "kind": "resource",
-            "line": 19,
+            "line": 20,
             "name": "this",
             "type": "aws_s3_bucket"
           },
@@ -169,7 +169,7 @@
             },
             "file": "main.tf",
             "kind": "output",
-            "line": 23,
+            "line": 24,
             "literals": {
               "description": "Bucket ID for use by the calling configuration."
             },

@@ -21,7 +21,7 @@ iaclens:
                         type: choice
                 model: typesafe/jev-1.13.0
                 usage:
-                    input_tokens: 566
+                    input_tokens: 584
                     output_tokens: 39
               stage: checks
         kind_scope: repository components (examples excluded)
@@ -29,15 +29,15 @@ iaclens:
             - checks:
                 - engine: go
                   evidence:
-                    - main.tf:10
-                    - main.tf:14
+                    - main.tf:11
+                    - main.tf:15
                   id: input-descriptions
                   message: Reusable module inputs should have nonempty descriptions.
                   severity: warning
                   status: pass
                 - engine: go
                   evidence:
-                    - main.tf:23
+                    - main.tf:24
                   id: output-descriptions
                   message: Reusable module outputs should have nonempty descriptions.
                   severity: warning
@@ -74,8 +74,8 @@ iaclens:
                   status: pass
                 - engine: go
                   evidence:
-                    - main.tf:10
-                    - main.tf:14
+                    - main.tf:11
+                    - main.tf:15
                   id: company-nullability
                   message: 'Company policy: each public input must explicitly declare nullable.'
                   severity: error
@@ -94,7 +94,7 @@ iaclens:
         name: custom-policy
         version: 1
     schema_version: 2
-    source_digest: cd6ee5a3f75e290f23c082dc572c63620b9ee5f4f011da76a1b80b91675be7d0
+    source_digest: 5ff84bd806616a590564db392b419522fda97e35cf81d5c366f1caf3962dcdfb
     units:
         - path: .
           symbols:
@@ -125,7 +125,7 @@ iaclens:
                 type: string
               file: main.tf
               kind: variable
-              line: 10
+              line: 11
               literals:
                 description: Unique name supplied by the caller for the storage bucket.
               name: name
@@ -135,7 +135,7 @@ iaclens:
                 type: map(string)
               file: main.tf
               kind: variable
-              line: 14
+              line: 15
               literals:
                 description: Tags supplied by the calling configuration.
               name: tags
@@ -144,7 +144,7 @@ iaclens:
                 tags: var.tags
               file: main.tf
               kind: resource
-              line: 19
+              line: 20
               name: this
               type: aws_s3_bucket
             - attributes:
@@ -152,7 +152,7 @@ iaclens:
                 value: aws_s3_bucket.this.id
               file: main.tf
               kind: output
-              line: 23
+              line: 24
               literals:
                 description: Bucket ID for use by the calling configuration.
               name: bucket_id
