@@ -1,0 +1,69 @@
+{
+  "offline": {
+    "kind": "mixed",
+    "components": {
+      "module": 1,
+      "deployment": 1,
+      "unknown": 0
+    },
+    "examples": 1,
+    "units": {
+      "modules/storage": {
+        "kind": "module",
+        "method": "override",
+        "role": "component"
+      },
+      "modules/storage/examples/default": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "example",
+        "owner": "modules/storage"
+      },
+      "environments/dev": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {}
+  },
+  "jev": {
+    "kind": "mixed",
+    "components": {
+      "module": 1,
+      "deployment": 1,
+      "unknown": 0
+    },
+    "examples": 1,
+    "units": {
+      "modules/storage": {
+        "kind": "module",
+        "method": "override",
+        "role": "component"
+      },
+      "modules/storage/examples/default": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "example",
+        "owner": "modules/storage"
+      },
+      "environments/dev": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {
+      "modules/storage": {
+        "module-purpose": "pass"
+      },
+      "modules/storage/examples/default": {
+        "deployment-purpose": "pass"
+      },
+      "environments/dev": {
+        "deployment-purpose": "pass"
+      }
+    },
+    "minimum_jev_calls": 1
+  }
+}

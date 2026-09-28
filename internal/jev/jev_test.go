@@ -16,7 +16,7 @@ func TestRejectInvalidModelAnswer(t *testing.T) {
 		fmt.Fprint(w, `{"model":"jev-1.13.0","answers":{"domain":{"type":"choice","choice":"invented","confidence":0.9}}}`)
 	}))
 	defer server.Close()
-	if _, err := Evaluate(context.Background(), server.URL, "test-key", Build("test", "jev-1.13.0")); err == nil {
+	if _, err := Evaluate(context.Background(), server.URL, "test-key", Build("test", "jev-1.13.0", map[string]Question{"domain": {Type: "choice", Criteria: map[string]string{"known": "Known"}}})); err == nil {
 		t.Fatal("accepted invalid response")
 	}
 }

@@ -26,7 +26,7 @@ jobs:
           go-version-file: go.mod
       - name: Check formatting
         shell: bash
-        run: test -z "$(gofmt -l cmd internal)"
+        run: test -z "$(gofmt -l cmd internal rules)"
       - run: go mod verify
       - run: go test -race ./...
       - run: go vet ./...

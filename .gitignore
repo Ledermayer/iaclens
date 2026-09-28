@@ -38,3 +38,6 @@ go.work.sum
 /dist/
 /iaclens
 /smoke/
+
+# Generated example runs; reviewed expectations are tracked separately.
+/examples/*/results/

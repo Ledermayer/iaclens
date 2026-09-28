@@ -1,0 +1,100 @@
+name: Examples
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: examples-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  offline:
+    name: Offline example (${{ matrix.example }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [reusable-module, single-deployment, module-library, multi-deployment, mixed-repository, custom-policy]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - run: go build -o work/iaclens ./cmd/iaclens
+      - name: Run and verify offline example
+        env:
+          EXAMPLE: ${{ matrix.example }}
+        run: go run ./cmd/exampletest --example "$EXAMPLE" --mode offline --bin work/iaclens
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: example-${{ matrix.example }}-offline-${{ github.run_attempt }}
+          path: examples/${{ matrix.example }}/results/offline/
+          if-no-files-found: warn
+          retention-days: 14
+  live:
+    name: Live example (${{ matrix.example }})
+    needs: offline
+    # Only trusted same-repository branches can receive the metered API secret.
+    # Forks/Dependabot must be reviewed and promoted to a maintainer branch.
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: live-examples
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        example: [reusable-module, single-deployment, module-library, multi-deployment, mixed-repository, custom-policy]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - name: Build without the API secret
+        run: |
+          go build -o work/iaclens ./cmd/iaclens
+          go build -o work/exampletest ./cmd/exampletest
+      - name: Run and verify live Jev example
+        env:
+          EXAMPLE: ${{ matrix.example }}
+          LLM_GATEWAY_API_KEY: ${{ secrets.LLM_GATEWAY_API_KEY }}
+        run: |
+          test -n "$LLM_GATEWAY_API_KEY" || {
+            echo 'Configure LLM_GATEWAY_API_KEY in the live-examples environment.' >&2
+            exit 1
+          }
+          ./work/exampletest --example "$EXAMPLE" --mode jev --bin work/iaclens
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: example-${{ matrix.example }}-live-${{ github.run_attempt }}
+          path: examples/${{ matrix.example }}/results/jev/
+          if-no-files-found: warn
+          retention-days: 14
+  gate:
+    name: Examples gate
+    needs: [offline, live]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require all offline and live examples
+        env:
+          OFFLINE: ${{ needs.offline.result }}
+          LIVE: ${{ needs.live.result }}
+        run: |
+          if [[ "$OFFLINE" != success || "$LIVE" != success ]]; then
+            echo "Examples incomplete: offline=$OFFLINE live=$LIVE" >&2
+            echo 'Fork/Dependabot PRs need maintainer review and a same-repository branch for live testing.' >&2
+            exit 1
+          fi
+          echo 'All six offline and six live example runs passed.' >> "$GITHUB_STEP_SUMMARY"

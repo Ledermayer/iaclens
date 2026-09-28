@@ -1,0 +1,30 @@
+# Contributing
+
+All changes to main must go through a pull request, including maintainer changes.
+Create a branch, run `go test -race ./...` and `go vet ./...`, and open a PR. Merge
+only after required CI and Examples gate checks pass and conversations are resolved.
+Use squash merges with a descriptive Conventional Commit title.
+
+The repository currently has one maintainer, so branch rules require a PR and
+passing checks but not an approval the author cannot give themself. Add an
+independent required review when another maintainer is available. CODEOWNERS
+identifies the current reviewer; no administrator bypass is configured.
+
+Live examples use a metered LLM credential from the live-examples environment.
+Same-repository branches are a trust boundary: only trusted maintainers should
+have write access. Never execute fork PR code with pull_request_target or expose
+secrets to unreviewed code. Fork and Dependabot PRs run offline checks; their merge
+gate stays blocked until a maintainer reviews the code and promotes it to a
+same-repository branch and PR for live testing. Do not remove the gate to merge.
+
+Read [examples/README.md](examples/README.md) for the runner and
+[docs/result-storage.md](docs/result-storage.md) for result ownership.
+
+Rule and classification changes must include meaningful example expectations.
+Do not loosen a threshold simply to make a live test green. Investigate raw
+answers and retain uncertainty when evidence is insufficient. Live model results
+may drift even with a pinned model; rerun only after examining a failure.
+
+Default rules are versioned in rules/default.yaml and embedded in release binaries.
+Generated examples/*/results files are ignored; curated expected.json files are
+reviewed inputs, not snapshots of every probability from the last run.

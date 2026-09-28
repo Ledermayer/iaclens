@@ -17,7 +17,7 @@ func TestParseBoundariesAndExpressions(t *testing.T) {
 		os.MkdirAll(filepath.Dir(path), 0755)
 		os.WriteFile(path, []byte(content), 0600)
 	}
-	inv, err := Read(root)
+	inv, err := Read(root, testOptions())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestParseBoundariesAndExpressions(t *testing.T) {
 func TestMalformedFails(t *testing.T) {
 	root := t.TempDir()
 	os.WriteFile(filepath.Join(root, "main.tf"), []byte("resource {"), 0600)
-	if _, err := Read(root); err == nil {
+	if _, err := Read(root, testOptions()); err == nil {
 		t.Fatal("accepted malformed HCL")
 	}
 }
@@ -60,7 +60,7 @@ func TestJSONAndProviderConstraints(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "main.tf.json"), []byte(content), 0600); err != nil {
 		t.Fatal(err)
 	}
-	inv, err := Read(root)
+	inv, err := Read(root, testOptions())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,5 +72,43 @@ func TestJSONAndProviderConstraints(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("provider constraint missing: %+v", inv)
+	}
+}
+
+func testOptions() Options {
+	return Options{Include: []string{"*.tf", "*.tf.json"}, Blocks: []string{"terraform", "resource", "module"}}
+}
+
+func TestConfiguredFiltersAndBlockSelection(t *testing.T) {
+	root := t.TempDir()
+	for name, body := range map[string]string{
+		"main.tf":                       "variable \"name\" { description = \"Name\" }\nresource \"terraform_data\" \"a\" {}\n",
+		"generated/main.tf":             "malformed {",
+		".terraform/main.tf":            "malformed {",
+		"azure-pipelines/pipeline.yaml": "not Terraform",
+	} {
+		p := filepath.Join(root, name)
+		os.MkdirAll(filepath.Dir(p), 0755)
+		os.WriteFile(p, []byte(body), 0600)
+	}
+	opts := Options{Include: []string{"*"}, ExcludeDirs: []string{".terraform"}, ExcludePaths: []string{"generated"}, Blocks: []string{"variable"}}
+	inv, err := Read(root, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(inv.Files) != 1 || len(inv.Modules[0].Symbols) != 1 || inv.Modules[0].Symbols[0].Kind != "variable" {
+		t.Fatal(inv)
+	}
+}
+func TestJSONBackendIsNestedEvidence(t *testing.T) {
+	root := t.TempDir()
+	os.WriteFile(filepath.Join(root, "main.tf.json"), []byte(`{"terraform":{"backend":{"local":{}}}}`), 0600)
+	inv, err := Read(root, testOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	children := inv.Modules[0].Symbols[0].Children
+	if len(children) != 1 || children[0].Kind != "terraform.backend" {
+		t.Fatal(inv)
 	}
 }

@@ -1,0 +1,41 @@
+{
+  "offline": {
+    "kind": "deployment",
+    "components": {
+      "module": 0,
+      "deployment": 1,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      ".": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {}
+  },
+  "jev": {
+    "kind": "deployment",
+    "components": {
+      "module": 0,
+      "deployment": 1,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      ".": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {
+      ".": {
+        "deployment-purpose": "pass"
+      }
+    },
+    "minimum_jev_calls": 1
+  }
+}

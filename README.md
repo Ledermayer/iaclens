@@ -1,96 +1,103 @@
 # iaclens
 
-A Go CLI proof of concept for extracting Terraform source facts and classifying a
-module with TypeSafe Jev. One invocation scans a local repository, makes one
-optional System One API request, and writes YAML.
+A Go CLI for analysing Terraform code within a Git repository. A repository can
+contain reusable modules, infrastructure deployments, or both. Supporting examples
+remain attached to their owning module/component even when they are deployment code.
 
-## Build
+Go parses HCL and evaluates exact checks; Jev classifies unresolved components and
+runs explicitly enabled semantic checks. Repo-local YAML defines collection policy,
+component/example ownership, classification and profile-specific checks.
 
-Requires Go 1.27 or later (the current module's toolchain requirement).
+**Scope:** Terraform code only. Git is used to find the analysis root. Git history,
+remote hosting settings, Azure DevOps, pipeline compliance, provider release feeds,
+and DevOps governance are outside scope.
+
+## Build and run
+
+Requires Go 1.27 or later and Git. From this repository:
 
 ```sh
 go build -o work/iaclens ./cmd/iaclens
 go test ./...
-```
-
-## Run on an Azure Verified Module
-
-```sh
 git clone --depth 1 https://github.com/Azure/terraform-azurerm-avm-res-resources-resourcegroup.git work/resourcegroup
 
-# Local extraction, no API request
-./work/iaclens --source work/resourcegroup --out work/resourcegroup.yaml
+# Repository-root analysis without API calls; known root kind supplied explicitly
+./work/iaclens --source work/resourcegroup --kind module \
+  --format json --out work/resourcegroup.json
 
-# Inspect the complete request without sending it
-./work/iaclens --source work/resourcegroup --mode prepare \
-  --request-out work/request.json --out work/resourcegroup.yaml
-
-# Export LLM_GATEWAY_API_KEY in your shell, then run a live classification
+# Automatically classify unresolved components using Jev
+# Export LLM_GATEWAY_API_KEY in your shell before this command.
 ./work/iaclens --source work/resourcegroup --mode jev --provider llmgateway \
-  --out work/resourcegroup.yaml
+  --format json --out work/resourcegroup-live.json
 
-# Alternatively export TYPESAFE_API_KEY for direct TypeSafe access
-./work/iaclens --source work/resourcegroup --mode jev --provider typesafe \
-  --out work/resourcegroup.yaml
+# Inspect proposed requests without calling Jev
+./work/iaclens --source work/resourcegroup --mode prepare \
+  --request-out work/requests.json --out work/resourcegroup.yaml
 ```
 
-The model defaults to `jev-1.13.0`. Override with `--model`. Credentials are read
-from environment variables and are never written into generated requests or YAML.
-Live mode sends the discovered Terraform source and extracted inventory to the
-selected provider. Prepare mode writes that same source locally into its request.
+`--source` may point anywhere inside the target worktree; analysis always resolves
+to that repository's root. A repository without root .tf files is supported.
+Directories are classified independently; there is no assumption that one
+repository equals one module. `--kind` affects only the root Terraform directory;
+use per-path overrides for multi-component repositories.
 
-## Output and boundaries
+The model defaults to `jev-1.13.0`; override with `--model`. Direct TypeSafe access
+uses `--provider typesafe` and `TYPESAFE_API_KEY`. Credentials are read only from
+environment variables. Live requests contain selected Terraform source for the
+target unit. No model calls are made for conclusive configured classifications,
+or for disabled/inapplicable semantic checks.
 
-The `iaclens` YAML object contains a source digest, module directories, symbols
-with file/line provenance and verbatim attribute expressions, and `analysis_jev`.
-Each Terraform directory remains separate, including examples and child modules.
-Resources, data, ephemeral resources, actions, module calls, providers, variables,
-outputs, locals, checks, and Terraform settings are recognized. Required provider
-expressions are included. Both `.tf` and `.tf.json` are supported. Hidden
-directories, vendor directories, and symlink files are skipped.
+## Customize policy without recompiling
 
-HCL is parsed, not evaluated: runtime values, remote child-module contents and
-expanded dynamic blocks are not resolved. Nested block contents remain in the
-source sent to Jev but are not fully normalized in the YAML symbol inventory.
-This first POC does not implement the predecessor's complete metadata schema,
-resource indexes, Git/DevOps collection, or conference factory.
+```sh
+./work/iaclens --print-default-config > work/company-rules.yaml
+# Edit that YAML, then:
+./work/iaclens --source work/resourcegroup --config work/company-rules.yaml \
+  --format json --out work/company-report.json
+```
 
-Jev answers two bounded questions: primary domain and architectural role of the
-root module. The CLI records probabilities, confidence, model, token usage, and
-question version. Successful responses have `review_required` status; no
-confidence threshold has been calibrated on Terraform yet. An offline result is
-explicitly `not_run`, and a prepared request is `prepared`.
+Alternatively put `.iaclens.yaml` in the analysed repository root. Explicit
+`--config` takes precedence; otherwise the local file overrides embedded defaults.
+Files replace the entire ruleset; implicit merges are not performed.
 
-Output is atomically replaced. On subsequent runs, only the exact
-`# BEGIN IACLENS` / `# END IACLENS` region is replaced. Existing manual enrichment
-and other tool-owned regions outside it are preserved. Invalid markers or HCL
-cause an error; API failures do not overwrite the existing output. This POC uses
-its own namespace so it can coexist with existing module stubs without claiming
-full compatibility with their schema.
+See [rules/default.yaml](rules/default.yaml) and the [ruleset reference](rules/README.md)
+for scan filters, ownership, classification, assertions, semantic checks and examples.
+The shipped defaults are an initial policy, not a universal Terraform standard.
+In particular backend/cloud signals are configurable intent assumptions, and the
+provider-declaration warning can be disabled for provider-free code.
 
-The POC rejects API request bodies over 100,000 bytes; this is a conservative
-local guard, not a tokenizer or a guarantee of fitting the model's token limits.
-Oversized modules need a future batching strategy. HTTP requests have a 90-second
-timeout; failed calls return an error without automatic retries.
+## Results and limits
 
-## Verified live run
+Schema version 2 records repository identity, a source digest, ruleset identity and
+digest, extracted units, per-unit classifications/checks and actual Jev responses.
+Examples have explicit owners and retain their own checks; they do not inflate
+independent component counts or change the repository's kind. The summary includes
+module/deployment/unknown component counts and classification completeness.
 
-On 2026-09-27 the compiled CLI successfully ran through LLM Gateway against
-`Azure/terraform-azurerm-avm-res-resources-resourcegroup` at commit
-`de43ed490b29e950baea4e826dca861413f93c6e`:
+`--format json` writes a complete JSON report (replacing the output file).
+Default YAML output replaces only `# BEGIN IACLENS` / `# END IACLENS`; content
+outside those markers is preserved. Files are written via a temporary file and
+rename. Errors do not overwrite an existing report. Check failures are reported
+in the output but do not currently set a failing CLI exit status.
 
-- 18 Terraform files across 5 module directories.
-- Returned model: `typesafe/jev-1.13.0`.
-- Domain: `management`, confidence 0.99.
-- Role: `resource`, confidence 0.87 (chosen-option probability 0.89).
-- Usage: 16,370 input tokens and 147 output tokens.
+Unknown intended usage stays unknown; code-specific checks remain unchecked until
+classification is resolved. Use overrides for known components. Model thresholds
+are configurable and provisional. “No findings” is not a Terraform plan, deployment
+validation, or security certification.
 
-This verifies integration for one module; it does not establish classification
-accuracy across the AVM catalog. Local run artifacts and the binary live under
-ignored `work/`.
+The parser retains expressions without evaluating runtime values or downloading
+remote modules. It supports .tf and .tf.json; tfvars, Terraform Stacks/test files,
+plans and state are not yet analysed. Selected nested facts are normalized; see
+the ruleset reference for supported selectors. Provider-specific requirements and
+version-range evaluation are not implemented in this first configurable engine.
+Jev calls have a 90-second timeout and a 100,000-byte guard, not a token estimator.
+A single CLI run can contain several scoped requests, and responses are not cached
+across runs yet.
 
-API references: [TypeSafe](https://docs.typesafe.ai/api),
-[LLM Gateway System One](https://docs.llmgateway.io/features/system-one).
+The earlier v0.1.0-rc.1 release demonstrated the live AVM Resource Group integration
+through LLM Gateway (18 files, 5 directories). Its schema-v1 domain/role questions
+are superseded here by configurable component classification; old releases remain
+unchanged.
 
 ## CI and semantic-versioned releases
 
@@ -146,3 +153,14 @@ scripts/release.sh v0.1.0-rc.1
 The output directory must not already exist; use `RELEASE_DIR=work/another-build`
 for another local run. Binaries are unsigned in this first release pipeline;
 macOS/Windows signing and notarization are not configured.
+
+## Example suite and PR evidence
+
+Six self-contained repository archetypes and per-example rulesets live under
+[examples/](examples/README.md). The PR Examples workflow runs each offline and
+against live Jev, verifies reviewed expectations, and uploads JSON/YAML reports
+and run metadata. Local generated results stay inside each example's ignored
+results/ folder. See the [result-storage decision](docs/result-storage.md) for
+alternatives to making the CLI repository a metadata database.
+
+All changes to main require a PR and the required checks; see CONTRIBUTING.md.
