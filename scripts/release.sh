@@ -42,10 +42,11 @@ for target_os in linux darwin windows; do
       -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.buildDate=$build_date" \
       -o "$package/$binary" ./cmd/iaclens
     cp LICENSE README.md "$package/"
+    cp rules/default.yaml "$package/iaclens.rules.yaml"
     if [[ "$target_os" == windows ]]; then
-      (cd "$package" && zip -q "$destination/$name.zip" "$binary" LICENSE README.md)
+      (cd "$package" && zip -q "$destination/$name.zip" "$binary" LICENSE README.md iaclens.rules.yaml)
     else
-      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" LICENSE README.md
+      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" LICENSE README.md iaclens.rules.yaml
     fi
   done
 done

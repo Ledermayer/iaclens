@@ -1,0 +1,346 @@
+iaclens:
+    analysis:
+        classification_complete: true
+        codebase_kind: mixed
+        component_counts:
+            deployment: 1
+            module: 1
+            unknown: 0
+        example_count: 1
+        jev_calls:
+            - path: environments/dev
+              result:
+                answers:
+                    deployment-purpose:
+                        choice: pass
+                        confidence: 1
+                        probabilities:
+                            fail: 0
+                            pass: 1
+                            unknown: 0
+                        type: choice
+                model: typesafe/jev-1.13.0
+                usage:
+                    input_tokens: 524
+                    output_tokens: 39
+              stage: checks
+            - path: modules/storage
+              result:
+                answers:
+                    module-purpose:
+                        choice: pass
+                        confidence: 1
+                        probabilities:
+                            fail: 0
+                            pass: 1
+                            unknown: 0
+                        type: choice
+                model: typesafe/jev-1.13.0
+                usage:
+                    input_tokens: 569
+                    output_tokens: 39
+              stage: checks
+            - path: modules/storage/examples/default
+              result:
+                answers:
+                    deployment-purpose:
+                        choice: pass
+                        confidence: 1
+                        probabilities:
+                            fail: 0
+                            pass: 1
+                            unknown: 0
+                        type: choice
+                model: typesafe/jev-1.13.0
+                usage:
+                    input_tokens: 523
+                    output_tokens: 39
+              stage: checks
+        kind_scope: repository components (examples excluded)
+        units:
+            - checks:
+                - engine: go
+                  evidence:
+                    - environments/dev/main.tf:1
+                  id: deployment-core-version
+                  message: Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - environments/dev/main.tf:4
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - answer:
+                    choice: pass
+                    confidence: 1
+                    probabilities:
+                        fail: 0
+                        pass: 1
+                        unknown: 0
+                    type: choice
+                  engine: jev
+                  id: deployment-purpose
+                  message: Example deployment must configure a concrete environment.
+                  severity: info
+                  status: pass
+              classification:
+                kind: deployment
+                method: go
+                reason: declares-backend
+              path: environments/dev
+              role: component
+            - checks:
+                - engine: go
+                  evidence:
+                    - modules/storage/main.tf:10
+                    - modules/storage/main.tf:14
+                  id: input-descriptions
+                  message: Reusable module inputs should have nonempty descriptions.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - modules/storage/main.tf:23
+                  id: output-descriptions
+                  message: Reusable module outputs should have nonempty descriptions.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  id: module-state-is-caller-owned
+                  message: State backend belongs in the deployment entry point.
+                  severity: error
+                  status: pass
+                - engine: go
+                  id: module-cloud-is-caller-owned
+                  message: Cloud workspace configuration belongs in the deployment entry point.
+                  severity: error
+                  status: pass
+                - engine: go
+                  evidence:
+                    - modules/storage/main.tf:3
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - answer:
+                    choice: pass
+                    confidence: 1
+                    probabilities:
+                        fail: 0
+                        pass: 1
+                        unknown: 0
+                    type: choice
+                  engine: jev
+                  id: module-purpose
+                  message: A reusable module should expose a coherent purpose.
+                  severity: info
+                  status: pass
+              classification:
+                kind: module
+                method: override
+                reason: ruleset path override
+              path: modules/storage
+              role: component
+            - checks:
+                - engine: go
+                  evidence:
+                    - modules/storage/examples/default/main.tf:1
+                  id: deployment-core-version
+                  message: Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - modules/storage/examples/default/main.tf:4
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - answer:
+                    choice: pass
+                    confidence: 1
+                    probabilities:
+                        fail: 0
+                        pass: 1
+                        unknown: 0
+                    type: choice
+                  engine: jev
+                  id: deployment-purpose
+                  message: Example deployment must configure a concrete environment.
+                  severity: info
+                  status: pass
+              classification:
+                kind: deployment
+                method: go
+                reason: declares-backend
+              owner: modules/storage
+              owner_scope: component
+              path: modules/storage/examples/default
+              role: example
+    repository:
+        name: mixed-repository
+        root: source
+    ruleset:
+        digest: d7f29f0155fd7174170cde8386d7ef7a21b80dc104df16ba649f1adcdff8f073
+        name: mixed-repository
+        version: 1
+    schema_version: 2
+    source_digest: 205cb1bb5df28417dd29233edc4e3ae7da8dd449e0e047114429c7ce3b26c37f
+    units:
+        - path: environments/dev
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - file: environments/dev/main.tf
+                  kind: terraform.backend
+                  line: 2
+                  name: local
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: environments/dev/main.tf
+                  kind: terraform.required_providers
+                  line: 4
+              file: environments/dev/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                region: '"eu-west-1"'
+              file: environments/dev/main.tf
+              kind: provider
+              line: 11
+              literals:
+                region: eu-west-1
+              name: aws
+            - attributes:
+                name: '"iaclens-example-dev"'
+                source: '"../../modules/storage"'
+                tags: '{ environment = "dev" }'
+              file: environments/dev/main.tf
+              kind: module
+              line: 14
+              literals:
+                name: iaclens-example-dev
+                source: ../../modules/storage
+              name: storage
+        - path: modules/storage
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: modules/storage/main.tf
+                  kind: terraform.required_providers
+                  line: 3
+              file: modules/storage/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                description: '"Unique name supplied by the caller for the storage bucket."'
+                type: string
+              file: modules/storage/main.tf
+              kind: variable
+              line: 10
+              literals:
+                description: Unique name supplied by the caller for the storage bucket.
+              name: name
+            - attributes:
+                default: '{}'
+                description: '"Tags supplied by the calling configuration."'
+                type: map(string)
+              file: modules/storage/main.tf
+              kind: variable
+              line: 14
+              literals:
+                description: Tags supplied by the calling configuration.
+              name: tags
+            - attributes:
+                bucket: var.name
+                tags: var.tags
+              file: modules/storage/main.tf
+              kind: resource
+              line: 19
+              name: this
+              type: aws_s3_bucket
+            - attributes:
+                description: '"Bucket ID for use by the calling configuration."'
+                value: aws_s3_bucket.this.id
+              file: modules/storage/main.tf
+              kind: output
+              line: 23
+              literals:
+                description: Bucket ID for use by the calling configuration.
+              name: bucket_id
+        - path: modules/storage/examples/default
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - file: modules/storage/examples/default/main.tf
+                  kind: terraform.backend
+                  line: 2
+                  name: local
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: modules/storage/examples/default/main.tf
+                  kind: terraform.required_providers
+                  line: 4
+              file: modules/storage/examples/default/main.tf
+              kind: terraform
+              line: 1
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                region: '"eu-west-1"'
+              file: modules/storage/examples/default/main.tf
+              kind: provider
+              line: 11
+              literals:
+                region: eu-west-1
+              name: aws
+            - attributes:
+                name: '"iaclens-example-dev"'
+                source: '"../.."'
+                tags: '{ environment = "dev" }'
+              file: modules/storage/examples/default/main.tf
+              kind: module
+              line: 14
+              literals:
+                name: iaclens-example-dev
+                source: ../..
+              name: storage

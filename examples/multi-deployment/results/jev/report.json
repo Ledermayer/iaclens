@@ -1,0 +1,292 @@
+{
+  "iaclens": {
+    "analysis": {
+      "classification_complete": true,
+      "codebase_kind": "deployment",
+      "component_counts": {
+        "deployment": 2,
+        "module": 0,
+        "unknown": 0
+      },
+      "example_count": 0,
+      "jev_calls": [
+        {
+          "path": "environments/dev",
+          "result": {
+            "answers": {
+              "deployment-purpose": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              }
+            },
+            "model": "typesafe/jev-1.13.0",
+            "usage": {
+              "input_tokens": 523,
+              "output_tokens": 39
+            }
+          },
+          "stage": "checks"
+        },
+        {
+          "path": "environments/prod",
+          "result": {
+            "answers": {
+              "deployment-purpose": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              }
+            },
+            "model": "typesafe/jev-1.13.0",
+            "usage": {
+              "input_tokens": 525,
+              "output_tokens": 39
+            }
+          },
+          "stage": "checks"
+        }
+      ],
+      "kind_scope": "repository components (examples excluded)",
+      "units": [
+        {
+          "checks": [
+            {
+              "engine": "go",
+              "evidence": [
+                "environments/dev/main.tf:1"
+              ],
+              "id": "deployment-core-version",
+              "message": "Declare the Terraform core version supported by this deployment.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "evidence": [
+                "environments/dev/main.tf:4"
+              ],
+              "id": "declared-provider-sources",
+              "message": "Declare provider requirements explicitly when providers are used; customize for provider-free configurations.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "answer": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              },
+              "engine": "jev",
+              "id": "deployment-purpose",
+              "message": "Example deployment must configure a concrete environment.",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "classification": {
+            "kind": "deployment",
+            "method": "go",
+            "reason": "declares-backend"
+          },
+          "path": "environments/dev",
+          "role": "component"
+        },
+        {
+          "checks": [
+            {
+              "engine": "go",
+              "evidence": [
+                "environments/prod/main.tf:1"
+              ],
+              "id": "deployment-core-version",
+              "message": "Declare the Terraform core version supported by this deployment.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "engine": "go",
+              "evidence": [
+                "environments/prod/main.tf:4"
+              ],
+              "id": "declared-provider-sources",
+              "message": "Declare provider requirements explicitly when providers are used; customize for provider-free configurations.",
+              "severity": "warning",
+              "status": "pass"
+            },
+            {
+              "answer": {
+                "choice": "pass",
+                "confidence": 1,
+                "probabilities": {
+                  "fail": 0,
+                  "pass": 1,
+                  "unknown": 0
+                },
+                "type": "choice"
+              },
+              "engine": "jev",
+              "id": "deployment-purpose",
+              "message": "Example deployment must configure a concrete environment.",
+              "severity": "info",
+              "status": "pass"
+            }
+          ],
+          "classification": {
+            "kind": "deployment",
+            "method": "go",
+            "reason": "declares-backend"
+          },
+          "path": "environments/prod",
+          "role": "component"
+        }
+      ]
+    },
+    "repository": {
+      "name": "multi-deployment",
+      "root": "source"
+    },
+    "ruleset": {
+      "digest": "006102b5c6e4103dcd210c63bb0012415cad5fc370aabcadccd1428230670edf",
+      "name": "multi-deployment",
+      "version": 1
+    },
+    "schema_version": 2,
+    "source_digest": "b7ce2e1346ff830024e5b85715603285eecef1eec2b4770dbad22f195bf25312",
+    "units": [
+      {
+        "path": "environments/dev",
+        "symbols": [
+          {
+            "attributes": {
+              "required_providers.aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }",
+              "required_version": "\"\u003e= 1.9\""
+            },
+            "children": [
+              {
+                "file": "environments/dev/main.tf",
+                "kind": "terraform.backend",
+                "line": 2,
+                "name": "local"
+              },
+              {
+                "attributes": {
+                  "aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }"
+                },
+                "file": "environments/dev/main.tf",
+                "kind": "terraform.required_providers",
+                "line": 4
+              }
+            ],
+            "file": "environments/dev/main.tf",
+            "kind": "terraform",
+            "line": 1,
+            "literals": {
+              "required_version": "\u003e= 1.9"
+            }
+          },
+          {
+            "attributes": {
+              "region": "\"eu-west-1\""
+            },
+            "file": "environments/dev/main.tf",
+            "kind": "provider",
+            "line": 11,
+            "literals": {
+              "region": "eu-west-1"
+            },
+            "name": "aws"
+          },
+          {
+            "attributes": {
+              "bucket": "\"iaclens-example-dev\"",
+              "tags": "{ environment = \"dev\" }"
+            },
+            "file": "environments/dev/main.tf",
+            "kind": "resource",
+            "line": 14,
+            "literals": {
+              "bucket": "iaclens-example-dev"
+            },
+            "name": "environment",
+            "type": "aws_s3_bucket"
+          }
+        ]
+      },
+      {
+        "path": "environments/prod",
+        "symbols": [
+          {
+            "attributes": {
+              "required_providers.aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }",
+              "required_version": "\"\u003e= 1.9\""
+            },
+            "children": [
+              {
+                "file": "environments/prod/main.tf",
+                "kind": "terraform.backend",
+                "line": 2,
+                "name": "local"
+              },
+              {
+                "attributes": {
+                  "aws": "{\n      source = \"hashicorp/aws\"\n      version = \"~\u003e 5.0\"\n    }"
+                },
+                "file": "environments/prod/main.tf",
+                "kind": "terraform.required_providers",
+                "line": 4
+              }
+            ],
+            "file": "environments/prod/main.tf",
+            "kind": "terraform",
+            "line": 1,
+            "literals": {
+              "required_version": "\u003e= 1.9"
+            }
+          },
+          {
+            "attributes": {
+              "region": "\"eu-west-1\""
+            },
+            "file": "environments/prod/main.tf",
+            "kind": "provider",
+            "line": 11,
+            "literals": {
+              "region": "eu-west-1"
+            },
+            "name": "aws"
+          },
+          {
+            "attributes": {
+              "bucket": "\"iaclens-example-prod\"",
+              "tags": "{ environment = \"prod\" }"
+            },
+            "file": "environments/prod/main.tf",
+            "kind": "resource",
+            "line": 14,
+            "literals": {
+              "bucket": "iaclens-example-prod"
+            },
+            "name": "environment",
+            "type": "aws_s3_bucket"
+          }
+        ]
+      }
+    ]
+  }
+}

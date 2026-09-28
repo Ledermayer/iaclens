@@ -1,0 +1,93 @@
+iaclens:
+    analysis:
+        classification_complete: true
+        codebase_kind: deployment
+        component_counts:
+            deployment: 1
+            module: 0
+            unknown: 0
+        example_count: 0
+        kind_scope: repository components (examples excluded)
+        units:
+            - checks:
+                - engine: go
+                  evidence:
+                    - main.tf:2
+                  id: deployment-core-version
+                  message: Declare the Terraform core version supported by this deployment.
+                  severity: warning
+                  status: pass
+                - engine: go
+                  evidence:
+                    - main.tf:5
+                  id: declared-provider-sources
+                  message: Declare provider requirements explicitly when providers are used; customize for provider-free configurations.
+                  severity: warning
+                  status: pass
+                - engine: jev
+                  id: deployment-purpose
+                  message: Example deployment must configure a concrete environment.
+                  severity: info
+                  status: unchecked
+              classification:
+                kind: deployment
+                method: go
+                reason: declares-backend
+              path: .
+              role: component
+    repository:
+        name: single-deployment
+        root: source
+    ruleset:
+        digest: 5854675decf6953d90cf40f1ee428369951c9cc24ab93af444d4b20e3fd7e5aa
+        name: single-deployment
+        version: 1
+    schema_version: 2
+    source_digest: bf1d6990b5e84e7f832b8506a312950c9af5ed5d42df861e93b8941e9de0eaaa
+    units:
+        - path: .
+          symbols:
+            - attributes:
+                required_providers.aws: |-
+                    {
+                          source = "hashicorp/aws"
+                          version = "~> 5.0"
+                        }
+                required_version: '">= 1.9"'
+              children:
+                - file: main.tf
+                  kind: terraform.backend
+                  line: 3
+                  name: local
+                - attributes:
+                    aws: |-
+                        {
+                              source = "hashicorp/aws"
+                              version = "~> 5.0"
+                            }
+                  file: main.tf
+                  kind: terraform.required_providers
+                  line: 5
+              file: main.tf
+              kind: terraform
+              line: 2
+              literals:
+                required_version: '>= 1.9'
+            - attributes:
+                region: '"eu-west-1"'
+              file: main.tf
+              kind: provider
+              line: 12
+              literals:
+                region: eu-west-1
+              name: aws
+            - attributes:
+                bucket: '"iaclens-example-dev"'
+                tags: '{ environment = "dev" }'
+              file: main.tf
+              kind: resource
+              line: 15
+              literals:
+                bucket: iaclens-example-dev
+              name: environment
+              type: aws_s3_bucket

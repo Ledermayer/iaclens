@@ -7,10 +7,41 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: validation-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: false
 jobs:
+  plan:
+    name: Select validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      mode: ${{ steps.route.outputs.mode }}
+      examples: ${{ steps.route.outputs.examples }}
+      head: ${{ steps.route.outputs.head }}
+      base: ${{ steps.route.outputs.base }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Find a validated baseline and route changes
+        id: route
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_plan.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validation-plan
+          path: work/plan.json
+          retention-days: 90
   test:
+    needs: plan
+    if: needs.plan.outputs.mode == 'full'
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -21,23 +52,28 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          ref: ${{ needs.plan.outputs.head }}
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version-file: go.mod
       - name: Check formatting
         shell: bash
-        run: test -z "$(gofmt -l cmd internal)"
+        run: test -z "$(gofmt -l cmd internal rules)"
+      - run: python3 -m unittest discover -s scripts -p 'test_ci_plan.py'
       - run: go mod verify
       - run: go test -race ./...
       - run: go vet ./...
       - run: go build ./cmd/iaclens
   package:
+    needs: plan
+    if: needs.plan.outputs.mode == 'full'
     name: Verify release packaging
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          ref: ${{ needs.plan.outputs.head }}
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version-file: go.mod
@@ -48,3 +84,161 @@ jobs:
           tar -xzf dist/iaclens_0.0.0-ci_linux_amd64.tar.gz -C smoke
           ./smoke/iaclens --version
           (cd dist && sha256sum --check checksums.txt)
+      - name: Prepare example binaries
+        run: |
+          mkdir -p work
+          cp smoke/iaclens work/iaclens
+          go build -o work/exampletest ./cmd/exampletest
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: example-binaries
+          path: |
+            work/iaclens
+            work/exampletest
+          retention-days: 1
+  examples:
+    name: Selected examples
+    needs: [plan, test, package]
+    if: >-
+      !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.examples != '[]' &&
+      (needs.plan.outputs.mode != 'full' || (needs.test.result == 'success' && needs.package.result == 'success'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+    environment: ${{ github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'live-examples' || 'offline-examples' }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.plan.outputs.head }}
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        if: needs.plan.outputs.mode == 'examples'
+        with:
+          go-version-file: go.mod
+      - name: Build only (example-only changes)
+        if: needs.plan.outputs.mode == 'examples'
+        run: |
+          go build -o work/iaclens ./cmd/iaclens
+          go build -o work/exampletest ./cmd/exampletest
+      - name: Reuse tested binaries (full CI)
+        if: needs.plan.outputs.mode == 'full'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gh run download "$RUN_ID" --name example-binaries --dir work
+          chmod +x work/iaclens work/exampletest
+      - name: Required offline checks and advisory live assessments
+        id: run
+        continue-on-error: true
+        env:
+          SELECTED: ${{ needs.plan.outputs.examples }}
+          LLM_GATEWAY_API_KEY: ${{ github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.LLM_GATEWAY_API_KEY || '' }}
+        run: python3 scripts/run_examples.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        id: reports
+        if: always()
+        with:
+          name: example-results
+          path: work/example-results/
+          retention-days: 14
+      - name: Require offline success
+        if: always()
+        env:
+          OUTCOME: ${{ steps.run.outcome }}
+          URL: ${{ steps.reports.outputs.artifact-url }}
+        run: |
+          echo "[Download selected example reports]($URL)" >> "$GITHUB_STEP_SUMMARY"
+          test "$OUTCOME" = success
+  gate:
+    name: Validation gate
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
+    needs: [plan, test, package, examples]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.plan.outputs.head || github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Validate the selected route
+        env:
+          PLAN: ${{ needs.plan.result }}
+          MODE: ${{ needs.plan.outputs.mode }}
+          TEST: ${{ needs.test.result }}
+          PACKAGE: ${{ needs.package.result }}
+          EXAMPLES: ${{ needs.examples.result }}
+        run: python3 scripts/ci_gate.py
+      - name: Attach verified results to the PR merge commit
+        if: github.event_name == 'workflow_dispatch' && needs.plan.outputs.mode == 'results'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATED_HEAD: ${{ needs.plan.outputs.head }}
+          VALIDATED_BASE: ${{ needs.plan.outputs.base }}
+        run: python3 scripts/publish_gate.py
+
+  publish:
+    name: Save reports to PR branch
+    needs: [plan, gate]
+    if: >-
+      !cancelled() && needs.gate.result == 'success' && needs.plan.outputs.examples != '[]' &&
+      github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' &&
+      github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.plan.outputs.head }}
+          persist-credentials: false
+      - name: Download and stage only selected reports
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          SELECTED: ${{ needs.plan.outputs.examples }}
+        run: |
+          gh run download "$RUN_ID" --name example-results --dir work/reports
+          python3 - <<'PY'
+          import json, os, shutil, subprocess
+          from pathlib import Path
+          allowed = {'reusable-module','single-deployment','module-library','multi-deployment','mixed-repository','custom-policy'}
+          for name in json.loads(os.environ['SELECTED']):
+              assert name in allowed
+              source = Path('work/reports',name,'results')
+              assert source.is_dir()
+              target = Path('examples',name,'results')
+              shutil.rmtree(target,ignore_errors=True)
+              shutil.copytree(source,target)
+              subprocess.run(['git','add','-f','--',str(target)],check=True)
+          PY
+      - name: Commit reports and dispatch lightweight verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          EXPECTED_SHA: ${{ needs.plan.outputs.head }}
+        run: |
+          current=$(gh api "repos/$GH_REPO/git/ref/heads/$BRANCH" --jq .object.sha)
+          if [[ "$current" != "$EXPECTED_SHA" ]]; then
+            echo 'Branch advanced; its newer validation owns report publishing.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: refresh example results [skip ci]'
+          gh auth setup-git
+          git push origin "HEAD:refs/heads/$BRANCH"
+          gh workflow run ci.yml --ref "$BRANCH"
+          echo 'Reports committed; dispatched path and parent-check verification only.' >> "$GITHUB_STEP_SUMMARY"

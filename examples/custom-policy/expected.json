@@ -1,0 +1,46 @@
+{
+  "offline": {
+    "kind": "module",
+    "components": {
+      "module": 1,
+      "deployment": 0,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      ".": {
+        "kind": "module",
+        "method": "override",
+        "role": "component"
+      }
+    },
+    "checks": {
+      ".": {
+        "company-nullability": "fail"
+      }
+    }
+  },
+  "jev": {
+    "kind": "module",
+    "components": {
+      "module": 1,
+      "deployment": 0,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      ".": {
+        "kind": "module",
+        "method": "override",
+        "role": "component"
+      }
+    },
+    "checks": {
+      ".": {
+        "company-nullability": "fail",
+        "module-purpose": "pass"
+      }
+    },
+    "minimum_jev_calls": 1
+  }
+}

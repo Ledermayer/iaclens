@@ -1,0 +1,54 @@
+{
+  "offline": {
+    "kind": "deployment",
+    "components": {
+      "module": 0,
+      "deployment": 2,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      "environments/dev": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      },
+      "environments/prod": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {}
+  },
+  "jev": {
+    "kind": "deployment",
+    "components": {
+      "module": 0,
+      "deployment": 2,
+      "unknown": 0
+    },
+    "examples": 0,
+    "units": {
+      "environments/dev": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      },
+      "environments/prod": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "component"
+      }
+    },
+    "checks": {
+      "environments/dev": {
+        "deployment-purpose": "pass"
+      },
+      "environments/prod": {
+        "deployment-purpose": "pass"
+      }
+    },
+    "minimum_jev_calls": 1
+  }
+}

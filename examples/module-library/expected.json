@@ -1,0 +1,69 @@
+{
+  "offline": {
+    "kind": "unknown",
+    "components": {
+      "module": 0,
+      "deployment": 0,
+      "unknown": 2
+    },
+    "examples": 1,
+    "units": {
+      "modules/network": {
+        "kind": "unknown",
+        "method": "unavailable",
+        "role": "component"
+      },
+      "modules/storage": {
+        "kind": "unknown",
+        "method": "unavailable",
+        "role": "component"
+      },
+      "examples/storage": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "example",
+        "owner": "modules/storage"
+      }
+    },
+    "checks": {}
+  },
+  "jev": {
+    "kind": "module",
+    "components": {
+      "module": 2,
+      "deployment": 0,
+      "unknown": 0
+    },
+    "examples": 1,
+    "units": {
+      "modules/network": {
+        "kind": "module",
+        "method": "jev",
+        "role": "component"
+      },
+      "modules/storage": {
+        "kind": "module",
+        "method": "jev",
+        "role": "component"
+      },
+      "examples/storage": {
+        "kind": "deployment",
+        "method": "go",
+        "role": "example",
+        "owner": "modules/storage"
+      }
+    },
+    "checks": {
+      "modules/network": {
+        "module-purpose": "pass"
+      },
+      "modules/storage": {
+        "module-purpose": "pass"
+      },
+      "examples/storage": {
+        "deployment-purpose": "pass"
+      }
+    },
+    "minimum_jev_calls": 1
+  }
+}

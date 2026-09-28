@@ -1,0 +1,18 @@
+# This entry point owns its state backend and concrete provider configuration.
+terraform {
+  backend "local" {}
+  required_version = ">= 1.9"
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+provider "aws" {
+  region = "eu-west-1"
+}
+resource "aws_s3_bucket" "environment" {
+  bucket = "iaclens-example-dev"
+  tags = { environment = "dev" }
+}

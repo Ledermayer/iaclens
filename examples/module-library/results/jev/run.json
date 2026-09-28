@@ -1,0 +1,13 @@
+{
+  "duration_ms": 1804,
+  "error": "",
+  "example": "module-library",
+  "mode": "jev",
+  "report_root_normalization": "Temporary fixture worktree mapped to source",
+  "run_attempt": "1",
+  "run_id": "36468313241",
+  "source_revision": "d7e1561e59425b35f37f4031aa8e259056fe7ece",
+  "started_at": "2026-09-28T18:56:25Z",
+  "status": "passed",
+  "workflow_sha": "f02735de852d1418540ad62d16654ac6a917c486"
+}
