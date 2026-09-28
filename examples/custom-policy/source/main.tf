@@ -7,6 +7,7 @@ terraform {
     }
   }
 }
+# Deliberately omit nullable on inputs so company-nullability reports a failure.
 variable "name" {
   type        = string
   description = "Unique name supplied by the caller for the storage bucket."
