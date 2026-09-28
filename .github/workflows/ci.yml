@@ -22,6 +22,7 @@ jobs:
       mode: ${{ steps.route.outputs.mode }}
       examples: ${{ steps.route.outputs.examples }}
       head: ${{ steps.route.outputs.head }}
+      base: ${{ steps.route.outputs.base }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -154,6 +155,10 @@ jobs:
           test "$OUTCOME" = success
   gate:
     name: Validation gate
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
     needs: [plan, test, package, examples]
     if: always()
     runs-on: ubuntu-latest
@@ -171,6 +176,13 @@ jobs:
           PACKAGE: ${{ needs.package.result }}
           EXAMPLES: ${{ needs.examples.result }}
         run: python3 scripts/ci_gate.py
+      - name: Attach verified results to the PR merge commit
+        if: github.event_name == 'workflow_dispatch' && needs.plan.outputs.mode == 'results'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATED_HEAD: ${{ needs.plan.outputs.head }}
+          VALIDATED_BASE: ${{ needs.plan.outputs.base }}
+        run: python3 scripts/publish_gate.py
 
   publish:
     name: Save reports to PR branch

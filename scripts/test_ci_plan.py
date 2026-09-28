@@ -38,4 +38,14 @@ class GateTests(unittest.TestCase):
             validate(mode,'success','skipped','skipped','skipped')
         with self.assertRaises(ValueError): validate('unknown','success','skipped','skipped','skipped')
 
+class MergeEvidenceTests(unittest.TestCase):
+    def test_only_exact_validated_merge_can_receive_result(self):
+        from publish_gate import target_matches
+        pr = {'head':{'sha':'head'},'base':{'sha':'base'}}
+        self.assertTrue(target_matches(pr,'head','base',['base','head']))
+        self.assertFalse(target_matches(pr,'other','base',['base','head']))
+        self.assertFalse(target_matches(pr,'head','new-base',['base','head']))
+        self.assertFalse(target_matches(pr,'head','base',['base','other']))
+        self.assertFalse(target_matches(pr,'head','base',['head']))
+
 if __name__ == '__main__': unittest.main()

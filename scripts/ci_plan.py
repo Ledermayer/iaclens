@@ -93,7 +93,7 @@ def main():
     Path('work').mkdir(exist_ok=True)
     Path('work/plan.json').write_text(json.dumps(plan, indent=2) + '\n')
     with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-        output.write(f'mode={mode}\nexamples={json.dumps(examples)}\nhead={head}\n')
+        output.write(f'mode={mode}\nexamples={json.dumps(examples)}\nhead={head}\nbase={base}\n')
     with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
         summary.write(f'## Validation route: {mode}\n\nExamples: {", ".join(examples) or "none"}.\n\nCompared with `{comparison or "full checkout"}`.\n')
     print(json.dumps(plan, indent=2))
