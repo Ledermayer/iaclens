@@ -31,3 +31,8 @@ Generated examples/*/results files are committed separately by Actions; expected
 reviewed inputs, not snapshots of every probability from the last run.
 
 See [validation routing](docs/validation-routing.md) for change selection and results-commit verification.
+
+Dependabot patch/minor updates can be merged automatically by the protected
+dependency workflow; major updates require current-head human approval first.
+See [dependency updates](docs/dependency-updates.md) for eligibility, pause/recovery,
+grouping recommendations and the separate release policy.
