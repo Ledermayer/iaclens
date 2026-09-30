@@ -21,6 +21,12 @@ multi-commit dependency PRs remain manual. The successful PR CI run must also ha
 Dependabot's authenticated triggering identity; a human-signed commit with a
 spoofed Dependabot author cannot grant eligibility.
 
+Let Dependabot perform branch updates, or request `@dependabot rebase`; do not use
+GitHub's **Update branch** button for PRs managed by this controller. That button
+adds a human merge commit, which intentionally fails the single-bot-commit rule.
+CI keeps bot-authored PRs offline and never commits reports to them, even when a
+human triggers the run. Non-main manual dispatches also remain offline.
+
 Go changes may update stable versions of dependencies already declared in the
 base revision. The declared dependency set, Go/toolchain directives, replacements,
 and other content must remain unchanged. Checksum differences must belong to the
@@ -65,6 +71,14 @@ Set repository variable `DEPENDABOT_AUTOMERGE_ENABLED=false` to pause automatic
 merges. Read-only previews remain available. The workflow's manual `apply` input
 defaults to false; applying is accepted only from the main-branch controller.
 No personal access token, App installation, or new action allowlist is required.
+
+If an existing dependency PR contains a human merge commit or CI-generated report
+commits, inspect its changes before requesting recovery. Ordinary Dependabot
+rebasing may refuse branches with extra commits. `@dependabot recreate` overwrites
+edits and therefore requires explicit approval after confirming what would be
+replaced. A recreated head needs new full PR CI and, for major updates, renewed
+human approval. Do not bypass a missing Validation gate or attach success to an
+unverified revision to recover a PR.
 
 Native queued auto-merge is deliberately not enabled: with zero globally required
 approvals, queued enrollment can outlive a head-specific major-update approval.

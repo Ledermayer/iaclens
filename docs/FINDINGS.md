@@ -11,3 +11,17 @@ Audit owner: Ledermayer. Baseline: `v0.1.0-rc.2`.
 These changes require a passing pull request before merge. They do not modify
 published RC1/RC2 assets or establish that a future release is ready without its
 own checks. The report schema and analysis policy are unchanged.
+
+## Dependabot CI Identity
+
+A human updating Dependabot PR #2 passed the old actor-only CI trust checks.
+CI consequently ran live examples and added a generated-results commit with
+`[skip ci]`; GitHub did not associate the follow-up checks with the PR head, and
+the multi-commit branch was ineligible for automatic merging.
+
+The CI guards now check both trigger actor and PR author, keep missing-author and
+non-main-dispatch contexts offline, and never publish reports to bot-authored PRs.
+`TestCITrustGuards` evaluates the actual workflow predicates against the failing
+case plus trusted-human, fork, bot, dispatch, cancellation and failed-gate cases.
+The controller's provenance and approval requirements remain unchanged. Existing
+affected branches require inspected Dependabot recovery, not a protection bypass.
