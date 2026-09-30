@@ -4,7 +4,7 @@ Audit owner: Ledermayer. Baseline: `v0.1.0-rc.3`.
 
 | Finding | Resolution in this branch | Regression evidence |
 | --- | --- | --- |
-| No supported private vulnerability reporting path | Document private vulnerability reporting in SECURITY.md, with a maintainer checklist for enabling it and a fallback contact route. | Reviewed document; reporting enabled when the repository is made public. |
+| No supported private vulnerability reporting path | Document the public-repository reporting toggle and the no-details fallback. GitHub does not offer that toggle while the repository is private. | SECURITY.md; enable the toggle only after the repository is public. |
 | No consumer report contract or schema validation | Publish schemas/report-v2.schema.json and docs/report-contract.md; validate saved and fresh CLI reports against the schema, plus negative and forward-compatibility cases. | TestSavedReportsMatchSchema, TestReportSchemaRejectsInvalidDocuments, TestFreshCLIReportContract. |
 | No binary installation or verification guidance | Document six-target install from RC3, checksum verification on POSIX and Windows, trust limitations, and a 60-second offline quickstart. | Reviewed document; RC3 install path exercised during verification. |
 

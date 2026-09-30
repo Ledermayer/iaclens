@@ -86,6 +86,10 @@ jobs:
           mkdir smoke
           tar -xzf dist/iaclens_0.0.0-ci_linux_amd64.tar.gz -C smoke
           ./smoke/iaclens --version
+          test -s smoke/docs/installation.md
+          test -s smoke/docs/report-contract.md
+          test -s smoke/schemas/report-v2.schema.json
+          test -s smoke/SECURITY.md
           (cd dist && sha256sum --check checksums.txt)
       - name: Prepare example binaries
         run: |

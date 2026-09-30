@@ -7,13 +7,14 @@ that infrastructure is secure or deployable.
 
 ## Report A Vulnerability Privately
 
-Use [Report a vulnerability](https://github.com/Ledermayer/iaclens/security/advisories/new)
-when GitHub private vulnerability reporting is available for this repository.
-The maintainer must verify that this facility is enabled as part of making the
-repository public; this document does not imply that a private-repository setting
-is already available.
+GitHub only offers its **Private vulnerability reporting** toggle for public
+repositories, under Settings → Advanced Security. It is not a private-repository
+setting, so its absence before publication is expected. After this repository is
+public, the maintainer enables that toggle and confirms the
+[report form](https://github.com/Ledermayer/iaclens/security/advisories/new)
+exists before treating it as the reporting route.
 
-If that button is unavailable, open an issue titled **Private security contact
+Until that form exists, open an issue titled **Private security contact
 requested** with no vulnerability details, reproduction, logs, attachments,
 credentials or customer identifiers. Wait for Ledermayer to arrange an appropriate
 private channel. Do not put exploit details or secrets in public issues or PRs.
