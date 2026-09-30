@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ledermayer/iaclens/blob/main/schemas/report-v2.schema.json",
+  "title": "IaCLens report schema version 2",
+  "description": "JSON report or the extracted IACLENS YAML payload. Additional fields are allowed for compatible extensions; unknown schema versions are not.",
+  "type": "object",
+  "required": ["iaclens"],
+  "properties": {
+    "iaclens": {
+      "type": "object",
+      "required": ["schema_version", "source_digest", "repository", "ruleset", "units", "analysis"],
+      "properties": {
+        "schema_version": {"const": 2},
+        "source_digest": {"$ref": "#/$defs/digest"},
+        "repository": {
+          "type": "object",
+          "required": ["root", "name"],
+          "properties": {"root": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}}
+        },
+        "ruleset": {
+          "type": "object",
+          "required": ["name", "version", "digest"],
+          "properties": {
+            "name": {"type": "string", "minLength": 1},
+            "version": {"const": 1},
+            "digest": {"$ref": "#/$defs/digest"}
+          }
+        },
+        "units": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["path", "symbols"],
+            "properties": {
+              "path": {"$ref": "#/$defs/path"},
+              "symbols": {"type": "array", "items": {"$ref": "#/$defs/symbol"}}
+            }
+          }
+        },
+        "analysis": {"$ref": "#/$defs/analysis"}
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "path": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["module", "deployment", "unknown"]},
+    "strings": {"type": "object", "additionalProperties": {"type": "string"}},
+    "symbol": {
+      "type": "object", "required": ["kind", "file", "line"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "type": {"type": "string"}, "name": {"type": "string"},
+        "file": {"$ref": "#/$defs/path"},
+        "line": {"type": "integer", "minimum": 1},
+        "attributes": {"$ref": "#/$defs/strings"},
+        "literals": {"$ref": "#/$defs/strings"},
+        "children": {"type": "array", "items": {"$ref": "#/$defs/symbol"}}
+      }
+    },
+    "answer": {
+      "type": "object", "required": ["type", "choice", "probabilities", "confidence"],
+      "properties": {
+        "type": {"const": "choice"},
+        "choice": {"enum": ["module", "deployment", "unknown", "pass", "fail"]},
+        "probabilities": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "check": {
+      "type": "object", "required": ["id", "engine", "status", "severity", "message"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "engine": {"enum": ["go", "jev"]},
+        "status": {"enum": ["pass", "fail", "unchecked", "not_applicable"]},
+        "severity": {"enum": ["info", "warning", "error"]},
+        "message": {"type": "string"},
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "answer": {"$ref": "#/$defs/answer"}
+      }
+    },
+    "analysisUnit": {
+      "type": "object", "required": ["path", "role", "classification", "checks"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "role": {"enum": ["component", "example"]},
+        "owner": {"$ref": "#/$defs/path"},
+        "owner_scope": {"enum": ["component", "repository"]},
+        "classification": {
+          "type": "object", "required": ["kind", "method", "reason"],
+          "properties": {
+            "kind": {"$ref": "#/$defs/kind"},
+            "method": {"enum": ["override", "go", "conflict", "unavailable", "prepared", "jev"]},
+            "reason": {"type": "string"},
+            "answer": {"$ref": "#/$defs/answer"}
+          }
+        },
+        "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}}
+      },
+      "allOf": [{
+        "if": {"properties": {"role": {"const": "example"}}},
+        "then": {"required": ["owner", "owner_scope"]}
+      }]
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["component_counts", "example_count", "classification_complete", "codebase_kind", "kind_scope", "units"],
+      "properties": {
+        "component_counts": {
+          "type": "object", "required": ["module", "deployment", "unknown"],
+          "properties": {
+            "module": {"type": "integer", "minimum": 0},
+            "deployment": {"type": "integer", "minimum": 0},
+            "unknown": {"type": "integer", "minimum": 0}
+          }
+        },
+        "example_count": {"type": "integer", "minimum": 0},
+        "classification_complete": {"type": "boolean"},
+        "codebase_kind": {"enum": ["module", "deployment", "mixed", "unknown"]},
+        "kind_scope": {"type": "string"},
+        "units": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/analysisUnit"}},
+        "jev_calls": {
+          "type": "array", "items": {
+            "type": "object", "required": ["path", "stage", "result"],
+            "properties": {
+              "path": {"$ref": "#/$defs/path"},
+              "stage": {"enum": ["classification", "checks"]},
+              "result": {
+                "type": "object", "required": ["model", "answers", "usage"],
+                "properties": {
+                  "model": {"type": "string", "minLength": 1},
+                  "answers": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/answer"}},
+                  "usage": {"type": ["object", "null"], "additionalProperties": {"type": "integer"}}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
