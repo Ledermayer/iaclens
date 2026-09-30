@@ -184,7 +184,9 @@ jobs:
           EXAMPLES: ${{ needs.examples.result }}
         run: python3 scripts/ci_gate.py
       - name: Attach verified results to the PR merge commit
-        if: github.event_name == 'workflow_dispatch' && needs.plan.outputs.mode == 'results'
+        # workflow_dispatch is the only event whose head is the current PR head.
+        # pull_request runs validate the parent and must not attest a later merge.
+        if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
           VALIDATED_HEAD: ${{ needs.plan.outputs.head }}

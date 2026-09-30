@@ -48,8 +48,10 @@ the same CI workflow on the new head. That dispatch performs only planning and t
 required gate. It does not compile, test, call Jev, or publish again. This gives the
 latest commit its required check without repeating expensive CI. Because GitHub
 can require a check on the synthetic PR merge commit after a skipped PR workflow,
-the successful results-only verifier also publishes its decision there. It checks
-the current PR head, base, and both merge parents exactly before doing so; it never
+that same dispatch publishes its successful decision there for every route. It
+checks the current PR head, base, and both merge parents exactly before doing so.
+A `pull_request` run must not publish that decision: its head is the pre-results
+parent, so attesting it would hide the generated commit. The publisher never
 copies a success to an unverified source or changed base. The main branch
 requires only Validation gate; that gate enforces all work selected for its route.
 

@@ -71,4 +71,6 @@ PR Files changed tab or branch browser. A separate publishing job has write
 permissions and never executes PR code. It refuses to overwrite a newer head.
 The results commit uses [skip ci] and an explicit lightweight dispatch verifies
 only permitted output paths and the parent's successful gate; no CI/examples
-are repeated. Fork/Dependabot runs retain artifacts only.
+are repeated. That dispatch also records Validation gate on GitHub's synthetic
+merge commit, which branch protection requires after `[skip ci]`. Fork/Dependabot
+runs retain artifacts only.
