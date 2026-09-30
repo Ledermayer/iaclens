@@ -13,7 +13,7 @@ iaclens:
                 answers:
                     classification:
                         choice: module
-                        confidence: 1
+                        confidence: 0.99
                         probabilities:
                             deployment: 0
                             module: 1
@@ -107,7 +107,7 @@ iaclens:
               classification:
                 answer:
                     choice: module
-                    confidence: 1
+                    confidence: 0.99
                     probabilities:
                         deployment: 0
                         module: 1
