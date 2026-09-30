@@ -3,11 +3,10 @@
 Release tags and assets are immutable. This file summarizes user-facing behavior;
 the release page identifies each exact commit. Dates below are publication dates.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-09-30
 
-Planned first non-prerelease release. This heading does not mean binaries are
-already published, and 0.1.0 is still pre-1.0 software, not a promise of a mature
-stable API or security certification.
+First non-prerelease release. This remains pre-1.0 software, not a promise of a
+mature stable API or security certification.
 
 - Document verified binary installation for all six platforms and safe offline use.
 - Define schema-v2 report fields, compatibility, coverage and output/error semantics.

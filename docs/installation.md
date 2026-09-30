@@ -1,10 +1,8 @@
 # Install IaCLens
 
 Download binaries from [GitHub Releases](https://github.com/Ledermayer/iaclens/releases).
-The commands below use the published `v0.1.0-rc.3` prerelease. Use `v0.1.0` only
-after that release exists; do not assume a stable release is already available.
-Private-repository downloads require GitHub authentication. Once public, downloads
-do not require an account.
+The commands below install the published `v0.1.0` release. The repository is
+public, so downloads do not require a GitHub account.
 
 ## Requirements And Packages
 
@@ -37,19 +35,19 @@ operating system using the table above (`uname -m` and `uname -s` help identify
 them). This example installs the macOS Apple Silicon package:
 
 ```sh
-VERSION=0.1.0-rc.3
+VERSION=0.1.0
 TARGET_OS=darwin
 TARGET_ARCH=arm64
 ARCHIVE="iaclens_${VERSION}_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
 BASE_URL="https://github.com/Ledermayer/iaclens/releases/download/v${VERSION}"
 
-# Public repository download. For private access, use the command below instead.
+# Public download. GitHub CLI is an optional alternative below.
 curl --fail --location --output "$ARCHIVE" "$BASE_URL/$ARCHIVE"
 curl --fail --location --output checksums.txt "$BASE_URL/checksums.txt"
 ```
 
-Before public availability, replace the two `curl` commands with authenticated
-GitHub CLI download (GitHub CLI is a download convenience, not a runtime dependency):
+GitHub CLI is a download convenience, not a runtime dependency. It can replace
+the two `curl` commands when you want authenticated or scripted downloads:
 
 ```sh
 gh release download "v${VERSION}" --repo Ledermayer/iaclens \
@@ -89,17 +87,17 @@ Windows machine. Git for Windows must be installed separately and on `PATH`.
 
 ```powershell
 $ErrorActionPreference = 'Stop'
-$Version = '0.1.0-rc.3'
+$Version = '0.1.0'
 $Architecture = 'amd64'
 $Archive = "iaclens_${Version}_windows_${Architecture}.zip"
 $BaseUrl = "https://github.com/Ledermayer/iaclens/releases/download/v$Version"
 
-# Public repository download. For private access, use the gh command below instead.
+# Public download. GitHub CLI is an optional alternative below.
 Invoke-WebRequest "$BaseUrl/$Archive" -OutFile $Archive
 Invoke-WebRequest "$BaseUrl/checksums.txt" -OutFile checksums.txt
 ```
 
-Private download alternative:
+GitHub CLI download alternative:
 
 ```powershell
 gh release download "v$Version" --repo Ledermayer/iaclens --pattern $Archive --pattern checksums.txt
