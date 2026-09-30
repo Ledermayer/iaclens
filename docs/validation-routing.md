@@ -43,17 +43,14 @@ rerun the affected examples even when parent evidence exists. Shared code still
 selects full validation. All files under an example's source directory, including
 Markdown, count as fixture inputs before documentation exclusions are applied.
 
-The publisher uses `[skip ci]` to suppress push/PR triggers and explicitly dispatches
-the same CI workflow on the new head. That dispatch performs only planning and the
-required gate. It does not compile, test, call Jev, or publish again. This gives the
-latest commit its required check without repeating expensive CI. Because GitHub
-can require a check on the synthetic PR merge commit after a skipped PR workflow,
-that same dispatch publishes its successful decision there for every route. It
-checks the current PR head, base, and both merge parents exactly before doing so.
-A `pull_request` run must not publish that decision: its head is the pre-results
-parent, so attesting it would hide the generated commit. The publisher never
-copies a success to an unverified source or changed base. The main branch
-requires only Validation gate; that gate enforces all work selected for its route.
+The publisher commits generated reports without `[skip ci]`. A skip marker suppresses
+the `pull_request` workflow, and a manually created check on GitHub's synthetic
+merge commit does not survive when GitHub recomputes that commit. The resulting
+`pull_request` event is therefore the required check. Its planner selects only
+path and parent verification for a results-only commit. It does not compile, test,
+call Jev, or publish again. The publisher never force-pushes over a newer head.
+The main branch requires only Validation gate; that gate enforces all work selected
+for its route.
 
 Fork/Dependabot PRs can pass offline validation without live credentials or report
 publishing. Publishing uses a separate job with write permissions, executes only

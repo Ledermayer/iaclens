@@ -80,8 +80,8 @@ def main():
     if event_name == 'pull_request':
         base = event['pull_request']['base']['sha']
     else:
-        # Dispatch on a PR branch (including [skip ci] results commits) uses the
-        # current PR base. Main pushes/manual runs deliberately get full validation.
+        # A manual dispatch on a PR branch uses the current PR base. Main
+        # pushes and manual main runs deliberately get full validation.
         prs = api(f'repos/{repo}/pulls?state=open&per_page=100')
         pr = next((p for p in prs if p['head']['sha'] == head and p['head']['repo']['full_name'] == repo), None)
         base = pr['base']['sha'] if pr else head

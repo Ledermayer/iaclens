@@ -32,10 +32,10 @@ the multi-commit branch was ineligible for automatic merging.
 
 The CI guards now check both trigger actor and PR author, keep missing-author and
 non-main-dispatch contexts offline, and never publish reports to bot-authored PRs.
-A later results commit still left branch protection waiting: its dispatch proved
-the branch head, but only the results-only route copied Validation gate onto
-GitHub's synthetic merge commit. Every successful current-head dispatch now does
-that copy after checking both merge parents; a pull_request run cannot.
+A later results commit still left branch protection waiting. Copying Validation
+gate onto the synthetic merge SHA did not survive GitHub recomputing that SHA.
+Generated results commits therefore no longer use `[skip ci]`; their normal
+pull_request workflow owns the required check and selects path verification only.
 `TestCITrustGuards` evaluates the actual workflow predicates against the failing
 case plus trusted-human, fork, bot, dispatch, cancellation and failed-gate cases.
 The controller's provenance and approval requirements remain unchanged. Existing

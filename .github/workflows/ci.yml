@@ -249,8 +249,7 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'chore: refresh example results [skip ci]'
+          git commit -m 'chore: refresh example results'
           gh auth setup-git
           git push origin "HEAD:refs/heads/$BRANCH"
-          gh workflow run ci.yml --ref "$BRANCH"
-          echo 'Reports committed; dispatched path and parent-check verification only.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Reports committed. The resulting pull_request event runs path verification only.' >> "$GITHUB_STEP_SUMMARY"

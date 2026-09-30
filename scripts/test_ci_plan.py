@@ -63,13 +63,13 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(ValueError): validate('unknown','success','skipped','skipped','skipped')
 
 class MergeEvidenceTests(unittest.TestCase):
-    def test_dispatch_attests_every_successful_route(self):
-        """Generated commits skip pull_request CI, so every dispatch must cover the merge SHA."""
+    def test_results_commit_uses_pull_request_validation(self):
+        """A skipped pull_request workflow cannot satisfy the recomputed merge check."""
         workflow = Path(__file__).parents[1].joinpath('.github/workflows/ci.yml').read_text()
-        attach = workflow.split('Attach verified results to the PR merge commit', 1)[1].split('publish:', 1)[0]
-        self.assertIn("github.event_name == 'workflow_dispatch'", attach)
-        self.assertNotIn('outputs.mode', attach)
-        self.assertIn('python3 scripts/publish_gate.py', attach)
+        publish = workflow.split('name: Save reports to PR branch', 1)[1]
+        self.assertNotIn('[skip ci]', publish)
+        self.assertNotIn('workflow run ci.yml', publish)
+        self.assertIn('chore: refresh example results', publish)
 
     def test_only_exact_validated_merge_can_receive_result(self):
         from publish_gate import target_matches
