@@ -34,7 +34,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/ci_plan.py
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: validation-plan
           path: work/plan.json
@@ -92,7 +92,7 @@ jobs:
           mkdir -p work
           cp smoke/iaclens work/iaclens
           go build -o work/exampletest ./cmd/exampletest
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: example-binaries
           path: |
@@ -141,7 +141,7 @@ jobs:
           SELECTED: ${{ needs.plan.outputs.examples }}
           LLM_GATEWAY_API_KEY: ${{ github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]' && ((github.event_name == 'pull_request' && github.event.pull_request.user.login != '' && github.event.pull_request.user.login != 'dependabot[bot]' && github.event.pull_request.user.login != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository) || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main')) && secrets.LLM_GATEWAY_API_KEY || '' }}
         run: python3 scripts/run_examples.py
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         id: reports
         if: always()
         with:
