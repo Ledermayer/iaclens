@@ -13,7 +13,7 @@ iaclens:
                 answers:
                     module-purpose:
                         choice: pass
-                        confidence: 1
+                        confidence: 0.99
                         probabilities:
                             fail: 0
                             pass: 1
@@ -61,7 +61,7 @@ iaclens:
                   status: pass
                 - answer:
                     choice: pass
-                    confidence: 1
+                    confidence: 0.99
                     probabilities:
                         fail: 0
                         pass: 1
