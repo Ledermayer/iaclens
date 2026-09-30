@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a capability or improvement
+title: 'feat: '
+body:
+  - type: markdown
+    attributes:
+      value: Describe the problem without customer source, credentials or private identifiers. Security reports belong in the private reporting process.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and use case
+      description: Who needs this and what cannot be done today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired behavior and success criteria
+      description: Include a synthetic example and the expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and compatibility
+      description: Could existing rules solve it? Would this change CLI, policy or report semantics?

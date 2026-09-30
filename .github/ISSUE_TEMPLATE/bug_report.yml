@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible CLI, policy, or documentation problem
+title: 'bug: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For suspected vulnerabilities use the Security policy, not this form.
+        Reports and prepared requests can contain source, secrets and local paths.
+        Use synthetic/redacted examples. Never attach API keys, state or customer repositories.
+  - type: input
+    id: version
+    attributes:
+      label: IaCLens version
+      description: Output of iaclens --version
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: OS and architecture
+      placeholder: macOS arm64, Linux amd64, or Windows amd64
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Sanitized command, mode, effective rules/check IDs, and synthetic input. Explain how to reproduce in a Git repository.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Include process exit status and relevant check status; they mean different things.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safe disclosure
+      options:
+        - label: I removed secrets, private source, identifiers, URLs and local user paths; this is not a vulnerability report.
+          required: true
