@@ -4,8 +4,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -313,5 +317,127 @@ func TestWorkflowTrustBoundaries(t *testing.T) {
 	}
 	if strings.Contains(string(data), "pull_request_target") || strings.Contains(string(data), "gh release") || strings.Contains(string(data), "git tag") {
 		t.Fatal("dependency automation must not run PR target code or publish releases")
+	}
+}
+
+// guardField resolves a dotted GitHub context selector without evaluating code.
+func guardField(t *testing.T, selector *ast.SelectorExpr) string {
+	t.Helper()
+	switch parent := selector.X.(type) {
+	case *ast.Ident:
+		return parent.Name + "." + selector.Sel.Name
+	case *ast.SelectorExpr:
+		return guardField(t, parent) + "." + selector.Sel.Name
+	default:
+		t.Fatal("unsupported guard selector")
+		return ""
+	}
+}
+
+// guardValue evaluates the boolean/string subset used by the actual CI expressions.
+func guardValue(t *testing.T, expression ast.Expr, fields map[string]string) any {
+	t.Helper()
+	switch value := expression.(type) {
+	case *ast.ParenExpr:
+		return guardValue(t, value.X, fields)
+	case *ast.BasicLit:
+		text, err := strconv.Unquote(value.Value)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return text
+	case *ast.SelectorExpr:
+		return fields[guardField(t, value)]
+	case *ast.CallExpr:
+		if function, ok := value.Fun.(*ast.Ident); ok && function.Name == "cancelled" && len(value.Args) == 0 {
+			return fields["cancelled"] == "true"
+		}
+	case *ast.UnaryExpr:
+		if value.Op == token.NOT {
+			return !guardValue(t, value.X, fields).(bool)
+		}
+	case *ast.BinaryExpr:
+		left, right := guardValue(t, value.X, fields), guardValue(t, value.Y, fields)
+		switch value.Op {
+		case token.LAND:
+			return left.(bool) && right.(bool)
+		case token.LOR:
+			return left.(bool) || right.(bool)
+		case token.EQL:
+			return left == right
+		case token.NEQ:
+			return left != right
+		}
+	}
+	t.Fatalf("unsupported guard expression: %T", expression)
+	return nil
+}
+
+// TestCITrustGuards reads production predicates so actor-only regressions fail tests.
+func TestCITrustGuards(t *testing.T) {
+	data, err := os.ReadFile("../../.github/workflows/ci.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			If, Environment string
+			Steps           []struct {
+				Env map[string]string
+			}
+		}
+	}
+	if err := yaml.Unmarshal(data, &workflow); err != nil {
+		t.Fatal(err)
+	}
+	examples := workflow.Jobs["examples"]
+	live := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(examples.Environment, "${{ "), " && 'live-examples' || 'offline-examples' }}"))
+	keyGuard := ""
+	for _, step := range examples.Steps {
+		if expression, exists := step.Env["LLM_GATEWAY_API_KEY"]; exists {
+			keyGuard = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(expression, "${{ "), " && secrets.LLM_GATEWAY_API_KEY || '' }}"))
+		}
+	}
+	if strings.Join(strings.Fields(live), " ") != strings.Join(strings.Fields(keyGuard), " ") {
+		t.Fatal("environment and API-key eligibility differ")
+	}
+	parse := func(expression string) ast.Expr {
+		parsed, err := parser.ParseExpr(strings.ReplaceAll(expression, "'", "\""))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return parsed
+	}
+	liveExpression, publishExpression := parse(live), parse(workflow.Jobs["publish"].If)
+	cases := []struct {
+		name, event, actor, author, source, ref, gate, cancelled string
+		live, publish                                            bool
+	}{
+		{"human updates Dependabot", "pull_request", "Ledermayer", botLogin, repositoryName, "refs/pull/2/merge", "success", "false", false, false},
+		{"bot updates Dependabot", "pull_request", botLogin, botLogin, repositoryName, "refs/pull/2/merge", "success", "false", false, false},
+		{"human updates Actions bot", "pull_request", "Ledermayer", "github-actions[bot]", repositoryName, "refs/pull/2/merge", "success", "false", false, false},
+		{"trusted human PR", "pull_request", "Ledermayer", "Ledermayer", repositoryName, "refs/pull/7/merge", "success", "false", true, true},
+		{"bot triggers human PR", "pull_request", "github-actions[bot]", "Ledermayer", repositoryName, "refs/pull/7/merge", "success", "false", false, false},
+		{"fork PR", "pull_request", "Ledermayer", "contributor", "outside/fork", "refs/pull/7/merge", "success", "false", false, false},
+		{"missing PR author", "pull_request", "Ledermayer", "", repositoryName, "refs/pull/7/merge", "success", "false", false, false},
+		{"branch dispatch", "workflow_dispatch", "Ledermayer", "", "", "refs/heads/dependabot/update", "success", "false", false, false},
+		{"main dispatch", "workflow_dispatch", "Ledermayer", "", "", "refs/heads/main", "success", "false", true, false},
+		{"main push", "push", "Ledermayer", "", "", "refs/heads/main", "success", "false", true, false},
+		{"bot main dispatch", "workflow_dispatch", "github-actions[bot]", "", "", "refs/heads/main", "success", "false", false, false},
+		{"failed gate", "pull_request", "Ledermayer", "Ledermayer", repositoryName, "refs/pull/7/merge", "failure", "false", true, false},
+		{"cancelled run", "pull_request", "Ledermayer", "Ledermayer", repositoryName, "refs/pull/7/merge", "success", "true", true, false},
+	}
+	for _, item := range cases {
+		t.Run(item.name, func(t *testing.T) {
+			fields := map[string]string{"github.repository": repositoryName, "github.event_name": item.event, "github.actor": item.actor,
+				"github.event.pull_request.user.login": item.author, "github.event.pull_request.head.repo.full_name": item.source,
+				"github.ref": item.ref, "needs.gate.result": item.gate, "needs.plan.outputs.examples": "[\"example\"]", "cancelled": item.cancelled}
+			if actual := guardValue(t, liveExpression, fields).(bool); actual != item.live {
+				t.Errorf("live eligibility=%v, want %v", actual, item.live)
+			}
+			if actual := guardValue(t, publishExpression, fields).(bool); actual != item.publish {
+				t.Errorf("publication eligibility=%v, want %v", actual, item.publish)
+			}
+		})
 	}
 }

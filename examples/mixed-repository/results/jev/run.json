@@ -1,13 +1,13 @@
 {
-  "duration_ms": 905,
+  "duration_ms": 742,
   "error": "",
   "example": "mixed-repository",
   "mode": "jev",
   "report_root_normalization": "Temporary fixture worktree mapped to source",
   "run_attempt": "1",
-  "run_id": "36727486748",
-  "source_revision": "e58d55363bf9a63178ba0b3c06dc29b5ab5e3784",
-  "started_at": "2026-09-30T14:17:36Z",
+  "run_id": "36732008932",
+  "source_revision": "20cb10f5c3e5968f48e517e7105b030f9f654c4f",
+  "started_at": "2026-09-30T14:52:24Z",
   "status": "passed",
-  "workflow_sha": "7d4ca51860aee9fe478293ab52c19e1ed3bb05bf"
+  "workflow_sha": "d5def20614690a66a1b00a7abee3c3a7bb6fdbdf"
 }
