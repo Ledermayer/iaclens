@@ -104,6 +104,8 @@ unchanged.
 `CI` runs formatting, module verification, tests with the race detector, vet, and
 builds on Linux, macOS, and Windows. A separate job verifies all six release
 packages without credentials or model calls.
+Full CI and release validation also run pinned `govulncheck`; reachable dependency
+vulnerabilities block the release path.
 
 `Release` runs when a `v*` tag is pushed. Version selection is explicit:
 
@@ -125,9 +127,19 @@ git push origin v0.1.0
 
 The workflow verifies the tag is reachable from `main`, repeats tests, builds
 Linux/macOS/Windows archives for amd64/arm64 with CGO disabled, and includes
-README, LICENSE, and SHA-256 checksums. `iaclens --version` reports the tag,
+README, LICENSE, default rules, third-party notices, and SHA-256 checksums.
+`iaclens --version` reports the tag,
 commit, and source commit date. A separate publishing job uses `GITHUB_TOKEN`
 with `contents: write`; no personal token or LLM credentials are required.
+
+`THIRD_PARTY_NOTICES.txt` is generated from the union of all six target dependency
+graphs. It includes dependency licenses and supplementary notices, Go distribution
+and inline source notices, and exact-version source archive links (including
+MPL-covered dependencies). Packaging rejects missing licenses and module
+replacements, then verifies the same notice bundle in every archive. Review
+licensing when adding dependencies or changing Go versions: the generator collects
+notices, but is not a license-compatibility decision engine. Archive timestamps
+are not normalized; deterministic notices do not imply reproducible archive bytes.
 
 Assets are uploaded to a draft before publication. Use the workflow's **Run
 workflow** form with an existing tag to retry an interrupted draft release.

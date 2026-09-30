@@ -7,6 +7,7 @@ setting up Go or running any examples.
 |---|---|---|
 | Go, go.mod/go.sum, embedded rules, scripts, workflow/build inputs | Tests on Linux/macOS/Windows and release packaging first | All, using the tested Linux binaries |
 | Particular example source, rules.yaml, expected.json | Build CLI/runner only | Only affected examples |
+| Generated reports mixed with docs or example changes | Rerun every changed report's owning example, plus changed source examples | Union of affected examples |
 | Documentation | Change classification only | None |
 | Generated reports only | Verify permitted paths and successful direct parent | None |
 | Unknown shared inputs | Full CI | All |
@@ -16,6 +17,12 @@ runs have a three-minute limit per example. All results are retained as artifact
 a successful gate permits committing selected reports to the feature branch.
 Unchanged examples' report files are left untouched. Offline failures retain
 artifacts without publishing a new commit on top of an unvalidated parent.
+
+Full CI also runs pinned `govulncheck` on Linux; a reachable dependency
+vulnerability fails the required test job. Release validation repeats this check
+before packaging. Documentation/results-only routes do not run a new dependency
+scan. Every release archive includes generated dependency and Go redistribution
+notices, and packaging verifies their contents in all six archives.
 
 ## Baseline and evidence
 
@@ -30,6 +37,11 @@ A results-only commit must have a directly validated parent and may only change
 report.json, report.yaml, run.json, or summary.md inside that parent's selected
 examples/results/offline or examples/results/jev directories. Commit messages,
 bot identity, and manually supplied flags are not evidence of successful tests.
+
+Adding a documentation change does not preserve that exemption: mixed changes
+rerun the affected examples even when parent evidence exists. Shared code still
+selects full validation. All files under an example's source directory, including
+Markdown, count as fixture inputs before documentation exclusions are applied.
 
 The publisher uses `[skip ci]` to suppress push/PR triggers and explicitly dispatches
 the same CI workflow on the new head. That dispatch performs only planning and the
