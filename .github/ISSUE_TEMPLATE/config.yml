@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/Ledermayer/iaclens/blob/main/SECURITY.md
+    about: Read the private reporting route and the no-details fallback before sharing anything sensitive.
+  - name: Usage help and support expectations
+    url: https://github.com/Ledermayer/iaclens/blob/main/SUPPORT.md
+    about: Installation, output contracts, examples, and safe support requests.
