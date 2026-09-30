@@ -30,6 +30,7 @@ mkdir -p "$destination"
 destination="$(cd "$destination" && pwd)"
 staging="$(mktemp -d)"
 trap 'rm -rf "$staging"' EXIT
+go run ./cmd/licensenotices --out "$staging/THIRD_PARTY_NOTICES.txt"
 for target_os in linux darwin windows; do
   for target_arch in amd64 arm64; do
     name="iaclens_${version#v}_${target_os}_${target_arch}"
@@ -42,11 +43,14 @@ for target_os in linux darwin windows; do
       -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.buildDate=$build_date" \
       -o "$package/$binary" ./cmd/iaclens
     cp LICENSE README.md "$package/"
+    cp "$staging/THIRD_PARTY_NOTICES.txt" "$package/"
     cp rules/default.yaml "$package/iaclens.rules.yaml"
     if [[ "$target_os" == windows ]]; then
-      (cd "$package" && zip -q "$destination/$name.zip" "$binary" LICENSE README.md iaclens.rules.yaml)
+      (cd "$package" && zip -q "$destination/$name.zip" "$binary" LICENSE README.md iaclens.rules.yaml THIRD_PARTY_NOTICES.txt)
+      unzip -p "$destination/$name.zip" THIRD_PARTY_NOTICES.txt | cmp "$staging/THIRD_PARTY_NOTICES.txt" -
     else
-      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" LICENSE README.md iaclens.rules.yaml
+      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" LICENSE README.md iaclens.rules.yaml THIRD_PARTY_NOTICES.txt
+      tar -xzOf "$destination/$name.tar.gz" THIRD_PARTY_NOTICES.txt | cmp "$staging/THIRD_PARTY_NOTICES.txt" -
     fi
   done
 done

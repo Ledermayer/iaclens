@@ -63,6 +63,9 @@ jobs:
       - run: go mod verify
       - run: go test -race ./...
       - run: go vet ./...
+      - name: Check reachable dependency vulnerabilities
+        if: runner.os == 'Linux'
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
       - run: go build ./cmd/iaclens
   package:
     needs: plan

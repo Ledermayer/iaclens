@@ -26,17 +26,18 @@ def classify(paths, proven_parent=False, parent_examples=()):
     selected = set()
     for p in paths:
         if generated(p):
+            selected.add(p.split('/')[1])
             continue
         # Go and shared build/analysis inputs always take precedence over docs.
         if p.endswith('.go') or p in {'go.mod', 'go.sum'} or p.startswith(('rules/', 'scripts/', '.github/workflows/')):
             return 'full', NAMES.copy()
-        if p.endswith('.md') or p.startswith('docs/') or p in {'.github/CODEOWNERS', '.github/dependabot.yml', '.gitignore', '.gitattributes', 'LICENSE'}:
-            continue
         parts = p.split('/')
         if len(parts) >= 3 and parts[0] == 'examples' and parts[1] in NAMES:
             if parts[2] == 'source' or p.endswith(('/rules.yaml', '/expected.json')):
                 selected.add(parts[1])
                 continue
+        if p.endswith('.md') or p.startswith('docs/') or p in {'.github/CODEOWNERS', '.github/dependabot.yml', '.gitignore', '.gitattributes', 'LICENSE'}:
+            continue
         # Unknown shared inputs are conservative; adding an archetype needs runner changes.
         return 'full', NAMES.copy()
     return ('examples', sorted(selected)) if selected else ('docs', [])

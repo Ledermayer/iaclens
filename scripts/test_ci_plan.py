@@ -15,6 +15,29 @@ class RoutingTests(unittest.TestCase):
         with self.assertRaises(ValueError): classify(['examples/custom-policy/results/jev/run.json'])
         with self.assertRaises(ValueError): classify(['examples/custom-policy/results/jev/run.json'],True,['reusable-module'])
         self.assertEqual(classify(['examples/custom-policy/results/jev/run.json'],True,['custom-policy']),('results',[]))
+    def test_results_mixed_with_docs_rerun_the_owner(self):
+        """Documentation must not exempt changed reports from validation."""
+        report = 'examples/custom-policy/results/jev/run.json'
+        for proven_parent in (False, True):
+            for paths in ([report, 'README.md'], ['README.md', report]):
+                with self.subTest(proven_parent=proven_parent, paths=paths):
+                    self.assertEqual(classify(paths, proven_parent, ['custom-policy']),
+                                     ('examples', ['custom-policy']))
+    def test_results_mixed_with_other_example_select_both(self):
+        """A separate source edit must not hide a report's owning example."""
+        paths = ['examples/custom-policy/results/offline/report.json',
+                 'examples/reusable-module/source/main.tf']
+        for ordered in (paths, list(reversed(paths))):
+            self.assertEqual(classify(ordered), ('examples', ['custom-policy', 'reusable-module']))
+    def test_shared_inputs_override_mixed_reports_and_docs(self):
+        """Shared inputs retain full validation regardless of path order."""
+        paths = ['README.md', 'examples/custom-policy/results/jev/run.json', 'go.mod']
+        for ordered in (paths, list(reversed(paths))):
+            self.assertEqual(classify(ordered), ('full', NAMES))
+    def test_example_source_markdown_is_an_example_input(self):
+        """Every fixture source file participates in example validation."""
+        self.assertEqual(classify(['examples/reusable-module/source/policy.md']),
+                         ('examples', ['reusable-module']))
     def test_code_hidden_in_results_is_not_exempt(self):
         self.assertEqual(classify(['examples/custom-policy/results/evil.go'],True,['custom-policy'])[0],'full')
     def test_unknown_input_and_deleted_example(self):
