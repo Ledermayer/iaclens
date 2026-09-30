@@ -127,7 +127,9 @@ git push origin v0.1.0
 
 The workflow verifies the tag is reachable from `main`, repeats tests, builds
 Linux/macOS/Windows archives for amd64/arm64 with CGO disabled, and includes
-README, LICENSE, default rules, third-party notices, and SHA-256 checksums.
+README, LICENSE, SECURITY, SUPPORT, CONTRIBUTING, CHANGELOG, the installation
+guide, report contract, report schema, default rules, third-party notices, and
+SHA-256 checksums.
 `iaclens --version` reports the tag,
 commit, and source commit date. A separate publishing job uses `GITHUB_TOKEN`
 with `contents: write`; no personal token or LLM credentials are required.

@@ -69,6 +69,7 @@ For same-repository PRs, Actions commits selected reports directly to the featur
 branch after successful required validation. Open examples/<name>/results/ in the
 PR Files changed tab or branch browser. A separate publishing job has write
 permissions and never executes PR code. It refuses to overwrite a newer head.
-The results commit uses [skip ci] and an explicit lightweight dispatch verifies
+The results commit does not use [skip ci]. Its pull_request workflow verifies
 only permitted output paths and the parent's successful gate; no CI/examples
-are repeated. Fork/Dependabot runs retain artifacts only.
+are repeated. That workflow-owned Validation gate remains attached when GitHub
+recomputes the synthetic merge commit. Fork/Dependabot runs retain artifacts only.

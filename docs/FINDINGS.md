@@ -4,7 +4,7 @@ Audit owner: Ledermayer. Baseline: `v0.1.0-rc.3`.
 
 | Finding | Resolution in this branch | Regression evidence |
 | --- | --- | --- |
-| No supported private vulnerability reporting path | Document private vulnerability reporting in SECURITY.md, with a maintainer checklist for enabling it and a fallback contact route. | Reviewed document; reporting enabled when the repository is made public. |
+| No supported private vulnerability reporting path | Document the public-repository reporting toggle and the no-details fallback. GitHub does not offer that toggle while the repository is private. | SECURITY.md; enable the toggle only after the repository is public. |
 | No consumer report contract or schema validation | Publish schemas/report-v2.schema.json and docs/report-contract.md; validate saved and fresh CLI reports against the schema, plus negative and forward-compatibility cases. | TestSavedReportsMatchSchema, TestReportSchemaRejectsInvalidDocuments, TestFreshCLIReportContract. |
 | No binary installation or verification guidance | Document six-target install from RC3, checksum verification on POSIX and Windows, trust limitations, and a 60-second offline quickstart. | Reviewed document; RC3 install path exercised during verification. |
 
@@ -32,6 +32,10 @@ the multi-commit branch was ineligible for automatic merging.
 
 The CI guards now check both trigger actor and PR author, keep missing-author and
 non-main-dispatch contexts offline, and never publish reports to bot-authored PRs.
+A later results commit still left branch protection waiting. Copying Validation
+gate onto the synthetic merge SHA did not survive GitHub recomputing that SHA.
+Generated results commits therefore no longer use `[skip ci]`; their normal
+pull_request workflow owns the required check and selects path verification only.
 `TestCITrustGuards` evaluates the actual workflow predicates against the failing
 case plus trusted-human, fork, bot, dispatch, cancellation and failed-gate cases.
 The controller's provenance and approval requirements remain unchanged. Existing

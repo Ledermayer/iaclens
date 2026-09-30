@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from ci_plan import classify, NAMES
 
 class RoutingTests(unittest.TestCase):
@@ -62,6 +63,14 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(ValueError): validate('unknown','success','skipped','skipped','skipped')
 
 class MergeEvidenceTests(unittest.TestCase):
+    def test_results_commit_uses_pull_request_validation(self):
+        """A skipped pull_request workflow cannot satisfy the recomputed merge check."""
+        workflow = Path(__file__).parents[1].joinpath('.github/workflows/ci.yml').read_text()
+        publish = workflow.split('name: Save reports to PR branch', 1)[1]
+        self.assertNotIn('[skip ci]', publish)
+        self.assertNotIn('workflow run ci.yml', publish)
+        self.assertIn('chore: refresh example results', publish)
+
     def test_only_exact_validated_merge_can_receive_result(self):
         from publish_gate import target_matches
         pr = {'head':{'sha':'head'},'base':{'sha':'base'}}

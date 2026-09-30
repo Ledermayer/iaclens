@@ -19,6 +19,11 @@ def api(path, payload=None):
 
 def main():
     repo, head, base = (os.environ[k] for k in ['GITHUB_REPOSITORY','VALIDATED_HEAD','VALIDATED_BASE'])
+    # A pull_request run validates the pre-results head. Attesting that older
+    # SHA to the current merge would hide the generated commit from the gate.
+    if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
+        print('Pull-request validation does not attest the synthetic merge commit.')
+        return
     prs = api(f'repos/{repo}/pulls?state=open&per_page=100')
     pr = next((p for p in prs if p['head']['sha'] == head and p['head']['repo']['full_name'] == repo), None)
     if pr is None:

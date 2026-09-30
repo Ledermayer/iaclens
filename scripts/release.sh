@@ -42,15 +42,30 @@ for target_os in linux darwin windows; do
       -trimpath -buildvcs=false \
       -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.buildDate=$build_date" \
       -o "$package/$binary" ./cmd/iaclens
-    cp LICENSE README.md "$package/"
+    cp LICENSE README.md SECURITY.md SUPPORT.md CONTRIBUTING.md CHANGELOG.md "$package/"
     cp "$staging/THIRD_PARTY_NOTICES.txt" "$package/"
     cp rules/default.yaml "$package/iaclens.rules.yaml"
+    mkdir -p "$package/docs" "$package/schemas"
+    cp docs/installation.md docs/report-contract.md "$package/docs/"
+    cp schemas/report-v2.schema.json "$package/schemas/"
+    # Keep this list aligned with the archive verification below.
+    public_docs=(
+      LICENSE README.md SECURITY.md SUPPORT.md CONTRIBUTING.md CHANGELOG.md
+      iaclens.rules.yaml THIRD_PARTY_NOTICES.txt
+      docs/installation.md docs/report-contract.md schemas/report-v2.schema.json
+    )
     if [[ "$target_os" == windows ]]; then
-      (cd "$package" && zip -q "$destination/$name.zip" "$binary" LICENSE README.md iaclens.rules.yaml THIRD_PARTY_NOTICES.txt)
+      (cd "$package" && zip -q "$destination/$name.zip" "$binary" "${public_docs[@]}")
       unzip -p "$destination/$name.zip" THIRD_PARTY_NOTICES.txt | cmp "$staging/THIRD_PARTY_NOTICES.txt" -
+      for doc in "${public_docs[@]}"; do
+        unzip -p "$destination/$name.zip" "$doc" | cmp "$package/$doc" -
+      done
     else
-      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" LICENSE README.md iaclens.rules.yaml THIRD_PARTY_NOTICES.txt
+      tar -czf "$destination/$name.tar.gz" -C "$package" "$binary" "${public_docs[@]}"
       tar -xzOf "$destination/$name.tar.gz" THIRD_PARTY_NOTICES.txt | cmp "$staging/THIRD_PARTY_NOTICES.txt" -
+      for doc in "${public_docs[@]}"; do
+        tar -xzOf "$destination/$name.tar.gz" "$doc" | cmp "$package/$doc" -
+      done
     fi
   done
 done

@@ -52,6 +52,10 @@ jobs:
           mkdir smoke
           tar -xzf "dist/iaclens_${TAG#v}_linux_amd64.tar.gz" -C smoke
           ./smoke/iaclens --version | grep -F "iaclens $TAG "
+          test -s smoke/docs/installation.md
+          test -s smoke/docs/report-contract.md
+          test -s smoke/schemas/report-v2.schema.json
+          test -s smoke/SECURITY.md
           (cd dist && sha256sum --check checksums.txt)
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
