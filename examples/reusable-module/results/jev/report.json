@@ -16,7 +16,7 @@
             "answers": {
               "classification": {
                 "choice": "module",
-                "confidence": 0.99,
+                "confidence": 1,
                 "probabilities": {
                   "deployment": 0,
                   "module": 1,
@@ -150,7 +150,7 @@
           "classification": {
             "answer": {
               "choice": "module",
-              "confidence": 0.99,
+              "confidence": 1,
               "probabilities": {
                 "deployment": 0,
                 "module": 1,
