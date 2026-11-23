@@ -53,7 +53,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.plan.outputs.head }}
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: go.mod
       - name: Check formatting
@@ -77,7 +77,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.plan.outputs.head }}
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version-file: go.mod
       - run: scripts/release.sh v0.0.0-ci
@@ -120,7 +120,7 @@ jobs:
         with:
           ref: ${{ needs.plan.outputs.head }}
           persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         if: needs.plan.outputs.mode == 'examples'
         with:
           go-version-file: go.mod
